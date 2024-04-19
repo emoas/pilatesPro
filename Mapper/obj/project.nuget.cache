@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "SXUH+zyU71nbyp1IJx5acUwjXAVT6uPMcr3F8j2tP2nukCRrj1JigjYOXVxwLHbY4m1WkhXRScFsuc9S7y6wVA==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Moas\\source\\repos\\PilatesPro\\Mapper\\Mapper.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Moas\\.nuget\\packages\\automapper\\10.1.1\\automapper.10.1.1.nupkg.sha512",
+    "C:\\Users\\Moas\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",
+    "C:\\Users\\Moas\\.nuget\\packages\\system.reflection.emit\\4.7.0\\system.reflection.emit.4.7.0.nupkg.sha512"
+  ],
+  "logs": []
+}

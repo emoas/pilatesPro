@@ -1,0 +1,12 @@
+C:\Users\Moas\source\repos\PilatesPro\ServicesInterface\bin\Debug\netcoreapp3.1\ServicesInterface.deps.json
+C:\Users\Moas\source\repos\PilatesPro\ServicesInterface\bin\Debug\netcoreapp3.1\ServicesInterface.dll
+C:\Users\Moas\source\repos\PilatesPro\ServicesInterface\bin\Debug\netcoreapp3.1\ServicesInterface.pdb
+C:\Users\Moas\source\repos\PilatesPro\ServicesInterface\bin\Debug\netcoreapp3.1\Dto.dll
+C:\Users\Moas\source\repos\PilatesPro\ServicesInterface\bin\Debug\netcoreapp3.1\Dto.pdb
+C:\Users\Moas\source\repos\PilatesPro\ServicesInterface\obj\Debug\netcoreapp3.1\ServicesInterface.csproj.AssemblyReference.cache
+C:\Users\Moas\source\repos\PilatesPro\ServicesInterface\obj\Debug\netcoreapp3.1\ServicesInterface.AssemblyInfoInputs.cache
+C:\Users\Moas\source\repos\PilatesPro\ServicesInterface\obj\Debug\netcoreapp3.1\ServicesInterface.AssemblyInfo.cs
+C:\Users\Moas\source\repos\PilatesPro\ServicesInterface\obj\Debug\netcoreapp3.1\ServicesInterface.csproj.CoreCompileInputs.cache
+C:\Users\Moas\source\repos\PilatesPro\ServicesInterface\obj\Debug\netcoreapp3.1\ServicesInterface.csproj.CopyComplete
+C:\Users\Moas\source\repos\PilatesPro\ServicesInterface\obj\Debug\netcoreapp3.1\ServicesInterface.dll
+C:\Users\Moas\source\repos\PilatesPro\ServicesInterface\obj\Debug\netcoreapp3.1\ServicesInterface.pdb

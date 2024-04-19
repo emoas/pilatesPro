@@ -1,0 +1,9 @@
+C:\Users\Moas\source\repos\PilatesPro\PilatesPro\bin\Release\netcoreapp3.1\Domain.deps.json
+C:\Users\Moas\source\repos\PilatesPro\PilatesPro\bin\Release\netcoreapp3.1\Domain.dll
+C:\Users\Moas\source\repos\PilatesPro\PilatesPro\bin\Release\netcoreapp3.1\Domain.pdb
+C:\Users\Moas\source\repos\PilatesPro\PilatesPro\obj\Release\netcoreapp3.1\Domain.csproj.AssemblyReference.cache
+C:\Users\Moas\source\repos\PilatesPro\PilatesPro\obj\Release\netcoreapp3.1\Domain.AssemblyInfoInputs.cache
+C:\Users\Moas\source\repos\PilatesPro\PilatesPro\obj\Release\netcoreapp3.1\Domain.AssemblyInfo.cs
+C:\Users\Moas\source\repos\PilatesPro\PilatesPro\obj\Release\netcoreapp3.1\Domain.csproj.CoreCompileInputs.cache
+C:\Users\Moas\source\repos\PilatesPro\PilatesPro\obj\Release\netcoreapp3.1\Domain.dll
+C:\Users\Moas\source\repos\PilatesPro\PilatesPro\obj\Release\netcoreapp3.1\Domain.pdb

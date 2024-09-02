@@ -111,6 +111,53 @@ namespace WebApi.Controllers
             {
                 return BadRequest(ae.Message);
             }
+            catch (System.Exception exeption)
+            {
+                return StatusCode(500, exeption.Message);
+            }
+        }
+        [HttpPut("changepass")]
+        public IActionResult ChangePassword([FromBody] UserDTO userUpdate)
+        {
+            try
+            {
+                var user = this.userService.ChangePassword(userUpdate);
+                return Ok(user);
+            }
+            catch (ValidationException ve)
+            {
+                return NotFound(ve.Message);
+            }
+            catch (ArgumentException ae)
+            {
+                return BadRequest(ae.Message);
+            }
+            catch (System.Exception exeption)
+            {
+                return StatusCode(500, exeption.Message);
+            }
+        }
+
+        [HttpPut("resetpass")]
+        public IActionResult ResetPassword([FromBody] UserDTO userUpdate)
+        {
+            try
+            {
+                var user = this.userService.ResetPassword(userUpdate);
+                return Ok(user);
+            }
+            catch (ValidationException ve)
+            {
+                return NotFound(ve.Message);
+            }
+            catch (ArgumentException ae)
+            {
+                return BadRequest(ae.Message);
+            }
+            catch (System.Exception exeption)
+            {
+                return StatusCode(500, exeption.Message);
+            }
         }
 
         /// <summary>

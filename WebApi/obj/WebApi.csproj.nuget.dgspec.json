@@ -151,7 +151,11 @@
         "frameworks": {
           "netcoreapp3.1": {
             "targetAlias": "netcoreapp3.1",
-            "projectReferences": {}
+            "projectReferences": {
+              "C:\\Users\\Moas\\source\\repos\\PilatesPro\\PilatesPro\\Domain.csproj": {
+                "projectPath": "C:\\Users\\Moas\\source\\repos\\PilatesPro\\PilatesPro\\Domain.csproj"
+              }
+            }
           }
         },
         "warningProperties": {
@@ -227,7 +231,7 @@
           "dependencies": {
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[5.0.8, )"
+              "version": "[5.0.9, )"
             },
             "Microsoft.EntityFrameworkCore.Design": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
@@ -306,7 +310,11 @@
         "frameworks": {
           "netcoreapp3.1": {
             "targetAlias": "netcoreapp3.1",
-            "projectReferences": {}
+            "projectReferences": {
+              "C:\\Users\\Moas\\source\\repos\\PilatesPro\\PilatesPro\\Domain.csproj": {
+                "projectPath": "C:\\Users\\Moas\\source\\repos\\PilatesPro\\PilatesPro\\Domain.csproj"
+              }
+            }
           }
         },
         "warningProperties": {
@@ -807,6 +815,10 @@
             "Pomelo.EntityFrameworkCore.MySql": {
               "target": "Package",
               "version": "[5.0.1, )"
+            },
+            "System.Text.Json": {
+              "target": "Package",
+              "version": "[8.0.3, )"
             }
           },
           "imports": [

@@ -14,7 +14,15 @@
           "SessionInterface.dll": {}
         }
       },
+      "Domain/1.0.0": {
+        "runtime": {
+          "Domain.dll": {}
+        }
+      },
       "Dto/1.0.0": {
+        "dependencies": {
+          "Domain": "1.0.0"
+        },
         "runtime": {
           "Dto.dll": {}
         }
@@ -23,6 +31,11 @@
   },
   "libraries": {
     "SessionInterface/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Domain/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

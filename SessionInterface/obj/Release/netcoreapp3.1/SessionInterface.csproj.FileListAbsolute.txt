@@ -10,3 +10,5 @@ C:\Users\Moas\source\repos\PilatesPro\SessionInterface\obj\Release\netcoreapp3.1
 C:\Users\Moas\source\repos\PilatesPro\SessionInterface\obj\Release\netcoreapp3.1\SessionInterface.csproj.CopyComplete
 C:\Users\Moas\source\repos\PilatesPro\SessionInterface\obj\Release\netcoreapp3.1\SessionInterface.dll
 C:\Users\Moas\source\repos\PilatesPro\SessionInterface\obj\Release\netcoreapp3.1\SessionInterface.pdb
+C:\Users\Moas\source\repos\PilatesPro\SessionInterface\bin\Release\netcoreapp3.1\Domain.dll
+C:\Users\Moas\source\repos\PilatesPro\SessionInterface\bin\Release\netcoreapp3.1\Domain.pdb

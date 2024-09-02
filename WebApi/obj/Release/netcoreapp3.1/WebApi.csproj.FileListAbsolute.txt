@@ -111,3 +111,6 @@ C:\Users\Moas\source\repos\PilatesPro\WebApi\obj\Release\netcoreapp3.1\WebApi.cs
 C:\Users\Moas\source\repos\PilatesPro\WebApi\obj\Release\netcoreapp3.1\WebApi.dll
 C:\Users\Moas\source\repos\PilatesPro\WebApi\obj\Release\netcoreapp3.1\WebApi.pdb
 C:\Users\Moas\source\repos\PilatesPro\WebApi\obj\Release\netcoreapp3.1\WebApi.genruntimeconfig.cache
+C:\Users\Moas\source\repos\PilatesPro\WebApi\bin\Release\netcoreapp3.1\Microsoft.Bcl.AsyncInterfaces.dll
+C:\Users\Moas\source\repos\PilatesPro\WebApi\bin\Release\netcoreapp3.1\System.Text.Encodings.Web.dll
+C:\Users\Moas\source\repos\PilatesPro\WebApi\bin\Release\netcoreapp3.1\System.Text.Json.dll

@@ -46,59 +46,9 @@
       "Dto/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v3.1",
-        "compile": {
-          "bin/placeholder/Dto.dll": {}
-        },
-        "runtime": {
-          "bin/placeholder/Dto.dll": {}
-        }
-      }
-    },
-    ".NETCoreApp,Version=v3.1/linux-x64": {
-      "AutoMapper/10.1.1": {
-        "type": "package",
         "dependencies": {
-          "Microsoft.CSharp": "4.7.0",
-          "System.Reflection.Emit": "4.7.0"
+          "Domain": "1.0.0"
         },
-        "compile": {
-          "lib/netstandard2.0/AutoMapper.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard2.0/AutoMapper.dll": {}
-        }
-      },
-      "Microsoft.CSharp/4.7.0": {
-        "type": "package",
-        "compile": {
-          "ref/netcoreapp2.0/_._": {}
-        },
-        "runtime": {
-          "lib/netcoreapp2.0/_._": {}
-        }
-      },
-      "System.Reflection.Emit/4.7.0": {
-        "type": "package",
-        "compile": {
-          "ref/netcoreapp2.0/_._": {}
-        },
-        "runtime": {
-          "lib/netcoreapp2.0/_._": {}
-        }
-      },
-      "Domain/1.0.0": {
-        "type": "project",
-        "framework": ".NETCoreApp,Version=v3.1",
-        "compile": {
-          "bin/placeholder/Domain.dll": {}
-        },
-        "runtime": {
-          "bin/placeholder/Domain.dll": {}
-        }
-      },
-      "Dto/1.0.0": {
-        "type": "project",
-        "framework": ".NETCoreApp,Version=v3.1",
         "compile": {
           "bin/placeholder/Dto.dll": {}
         },
@@ -333,11 +283,6 @@
           }
         },
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.302\\RuntimeIdentifierGraph.json"
-      }
-    },
-    "runtimes": {
-      "linux-x64": {
-        "#import": []
       }
     }
   }

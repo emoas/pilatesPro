@@ -33,7 +33,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Commons", "Commons\Commons.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi", "WebApi\WebApi.csproj", "{17A2986D-8193-4176-BBA9-3756BC0860EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SessionInterface", "SessionInterface\SessionInterface.csproj", "{BE75D8D1-9FF6-40C6-BF1C-68B8A5F2BE06}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SessionInterface", "SessionInterface\SessionInterface.csproj", "{BE75D8D1-9FF6-40C6-BF1C-68B8A5F2BE06}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

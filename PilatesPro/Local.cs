@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Domain
 {
@@ -14,7 +15,10 @@ namespace Domain
         public string Celular { get; set; }
         public string Url { get; set; }
         public bool Activo { get; set; }
+        public ICollection<Profesor> Profesores { get; set; }
+        public ICollection<Actividad> Actividades { get; set; }
         public DateTime FechaAlta { get; set; }
+        public ICollection<Agenda> Agendas { get; set; }
 
         public Local()
         {

@@ -11,5 +11,6 @@ namespace ServicesInterface
         LocalDTO Add(LocalDTO localDTO);
         LocalDTO Update(LocalDTO localDTOUpdate);
         void Remove(int localId);
+        LocalDTO GetId(int localId);
     }
 }

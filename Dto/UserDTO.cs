@@ -13,6 +13,7 @@ namespace Dto
         public enum rol { GOD, ADMIN, PROFE, RECEPCION, ALUMNO }
         public rol Rol { get; set; }
         public Guid Token { get; set; }
+        public bool ChangePassword { get; set; }
 
         public UserDTO()
         {

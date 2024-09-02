@@ -8,6 +8,7 @@ namespace Domain
         public int Id { get; set; }
         public enum rol { GOD, ADMIN, PROFE, RECEPCION, ALUMNO }
         public rol Rol { get; set; }
+        public bool ChangePassword { get; set; }
         public string Name
         {
             get
@@ -52,14 +53,16 @@ namespace Domain
         private const string EMAIL_REGEX = @"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,})+)$";
         public User()
         {
+            this.ChangePassword = true;
         }
-        public User(string name, string email, string password, rol rol)
+        public User(string name, string email, string password, rol rol, bool ChangePassword)
         {
             this.Name = name;
             this.Email = email;
             this.Password = password;
             this.Token = Guid.NewGuid();
             this.Rol = rol;
+            this.ChangePassword = ChangePassword;
         }
         private void ValidateEmptyString(string value, string message)
         {

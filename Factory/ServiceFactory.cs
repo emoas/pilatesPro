@@ -5,6 +5,7 @@ using DataAccess.Context;
 using DataAccess.Repositories;
 using DataAccessInterface.Repositories;
 using Domain;
+using Domain.Alumnos;
 using Mapper.Mappers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,6 +35,18 @@ namespace Factory
         private void AddRepositories()
         {
             services.AddScoped<IRepository<User>, Repository<User>>();
+            services.AddScoped<IRepository<Local>, Repository<Local>>();
+            services.AddScoped<IRepository<Actividad>, Repository<Actividad>>();
+            services.AddScoped<IRepository<Patologia>, Repository<Patologia>>();
+            services.AddScoped<IRepository<Agenda>, Repository<Agenda>>();
+            services.AddScoped<IRepository<Clase>, Repository<Clase>>();
+            services.AddScoped<IRepository<AlumnoClase>, Repository<AlumnoClase>>();
+            services.AddScoped<IRepository<ClaseFija>, Repository<ClaseFija>>();
+            services.AddScoped<IProfeRepository, ProfeRepository>();
+            services.AddScoped<IAlumnoRepository, AlumnoRepository>();
+            services.AddScoped<IRepository<Plan>, Repository<Plan>>();
+            services.AddScoped<IActividadRepository, ActividadRepository>();
+            services.AddScoped<IRepository<ClaseFija>, Repository<ClaseFija>>();
         }
 
         private void AddServices()
@@ -41,6 +54,16 @@ namespace Factory
             services.AddScoped<ISessionLogic, SessionLogic>();
             services.AddScoped<ISessionService, SessionService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<ILocalService, LocalService>();
+            services.AddScoped<IProfesorService, ProfesorService>();
+            services.AddScoped<IAlumnoService, AlumnoService>();
+            services.AddScoped<IActividadService, ActividadService>();
+            services.AddScoped<IClaseService, ClaseService>();
+            services.AddScoped<IAgendaService, AgendaService>();
+            services.AddScoped<IPatologiaService, PatologiaService>();
+            services.AddScoped<IPlanService, PlanService>();
+            services.AddScoped<IDashBoardService, DashBoardService>();
+            
         }
 
         public void AddDbContextService()

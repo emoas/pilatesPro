@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Dto
 {
-    public class PersonalDTO
+    public class AlumnoDTO:UserDTO
     {
         public string Apellido { get; set; }
         public string Cedula { get; set; }
@@ -15,11 +14,16 @@ namespace Dto
         public string EmeregenciaMovil { get; set; }
         public string ContactoEmergencia { get; set; }
         public string TelefonoContacto { get; set; }
-        public ICollection<string> PatologíasQuePresenta { get; set; }
+        public ICollection<PatologiaDTO> PatologíasQuePresenta { get; set; }
+        public string Observaciones { get; set; }
         public bool Activo { get; set; }
         public DateTime FechaNacimiento { get; set; }
         public DateTime FechaAlta { get; set; }
-        public PersonalDTO()
+        public int? PlanId { get; set; }
+        public PlanDTO? Plan { get; set; }
+        public ICollection<ClaseFijaDTO> ClasesFijas { get; set; }
+        public ICollection<ClaseDTO> Clases { get; set; }
+        public AlumnoDTO()
         {
         }
     }

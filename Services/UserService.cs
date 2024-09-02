@@ -32,10 +32,8 @@ namespace Services
         public UserDTO Add(UserDTO userCreateDto)
         {
             this.userValidator.ValidateCreate(userCreateDto);
-
-            var user = new User(userCreateDto.Name, userCreateDto.Email, userCreateDto.Password, (User.rol)userCreateDto.Rol);
+            var user = new User(userCreateDto.Name, userCreateDto.Email, userCreateDto.Password, (User.rol)userCreateDto.Rol,true);         
             this.userRepository.AddAndSave(user);
-
             return this.mapper.Map<UserDTO>(user);
         }
 
@@ -61,6 +59,32 @@ namespace Services
         private User SearchUser(int userId)
         {
             return this.userRepository.List().FirstOrDefault(u => u.Id == userId);
+        }
+
+        public UserDTO ChangePassword(UserDTO userUpdate)
+        {
+            var user = this.userRepository.List().FirstOrDefault(u => u.Email == userUpdate.Email);
+            if (user == null)
+            {
+                throw new Exception("No existe el usuario seleccionado.");
+            }
+            user.Password = userUpdate.Password;
+            user.ChangePassword = userUpdate.ChangePassword;
+            this.userRepository.Update(user);
+            return this.mapper.Map<UserDTO>(user);
+        }
+
+        public UserDTO ResetPassword(UserDTO userUpdate)
+        {
+            var user = this.userRepository.List().FirstOrDefault(u => u.Email == userUpdate.Email);
+            if (user == null)
+            {
+                throw new Exception("No existe el usuario seleccionado.");
+            }
+            user.Password = "primera";
+            user.ChangePassword = userUpdate.ChangePassword;
+            this.userRepository.Update(user);
+            return this.mapper.Map<UserDTO>(user);
         }
     }
 }

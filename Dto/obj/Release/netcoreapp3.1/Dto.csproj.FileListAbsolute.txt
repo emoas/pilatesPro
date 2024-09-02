@@ -7,3 +7,6 @@ C:\Users\Moas\source\repos\PilatesPro\Dto\obj\Release\netcoreapp3.1\Dto.Assembly
 C:\Users\Moas\source\repos\PilatesPro\Dto\obj\Release\netcoreapp3.1\Dto.csproj.CoreCompileInputs.cache
 C:\Users\Moas\source\repos\PilatesPro\Dto\obj\Release\netcoreapp3.1\Dto.dll
 C:\Users\Moas\source\repos\PilatesPro\Dto\obj\Release\netcoreapp3.1\Dto.pdb
+C:\Users\Moas\source\repos\PilatesPro\Dto\bin\Release\netcoreapp3.1\Domain.dll
+C:\Users\Moas\source\repos\PilatesPro\Dto\bin\Release\netcoreapp3.1\Domain.pdb
+C:\Users\Moas\source\repos\PilatesPro\Dto\obj\Release\netcoreapp3.1\Dto.csproj.CopyComplete

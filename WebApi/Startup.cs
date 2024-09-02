@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Net;
+using System.Text.Json.Serialization;
 using WebApi.Filters;
 
 namespace WebApi
@@ -40,6 +41,9 @@ namespace WebApi
             factory.AddCustomServices();
             factory.AddAutoMapperServices();
             services.AddScoped<AuthorizationAttributeFilter>();
+            services.AddControllers().AddNewtonsoftJson(x =>
+                        x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

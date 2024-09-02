@@ -9,5 +9,7 @@ namespace ServicesInterface
         UserDTO Add(UserDTO userCreateDto);
         UserDTO Update(UserDTO userUpdateDto);
         void Remove(int userId);
+        UserDTO ChangePassword(UserDTO userUpdate);
+        UserDTO ResetPassword(UserDTO userUpdate);
     }
 }

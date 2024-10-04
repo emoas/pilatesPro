@@ -46,6 +46,7 @@ namespace Factory
             services.AddScoped<IAlumnoRepository, AlumnoRepository>();
             services.AddScoped<IRepository<Plan>, Repository<Plan>>();
             services.AddScoped<IActividadRepository, ActividadRepository>();
+            services.AddScoped<IAlumnoClaseRepository, AlumnoClaseRepository>();
             services.AddScoped<IRepository<ClaseFija>, Repository<ClaseFija>>();
         }
 

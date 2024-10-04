@@ -25,6 +25,7 @@ namespace Domain
         public Plan? Plan { get; set; }
         public ICollection<ClaseFija> ClasesFijas { get; set; }
         public ICollection<AlumnoClase> ClasesAlumno { get; set; }
+        public int CuposPendientes { get; set; }
 
         public Alumno()
         {
@@ -33,6 +34,7 @@ namespace Domain
             this.PatologíasQuePresenta = new List<Patologia>();
             this.Password = "primera";
             this.Token = Guid.NewGuid();
+            this.CuposPendientes = 0;
         }
         public Alumno(string name, List<Patologia> patologias)
         {

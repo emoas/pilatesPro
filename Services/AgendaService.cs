@@ -59,7 +59,7 @@ namespace Services
             // Sumar un día
             DateTime fechaHoraMasUnDia = fechaHoraActual.AddDays(1);
             var clases = new List<Clase>();
-            var agendas = this.agendaRepository.IncludeAll("Clase").Where(a => a.HorarioInicio.Date > fechaHoraMasUnDia.Date &&  a.LocalId == localId && a.Dia==dia && a.Hora==hora);
+            var agendas = this.agendaRepository.IncludeAll("Clase").Where(a => a.HorarioInicio.Date >= fechaHoraMasUnDia.Date &&  a.LocalId == localId && a.Dia==dia && a.Hora==hora);
             foreach (Agenda agenda in agendas)
             {
                 if (agenda.Clase.ActividadId == actividadId)

@@ -213,6 +213,51 @@ namespace WebApi.Controllers
                 return StatusCode(500, "Algo salió mal.");
             }
         }
+
+        [HttpDelete("{alumnoId}/cancel/{claseId}")]
+        public IActionResult CancelReservaWeb([FromRoute] int alumnoId, int claseId)
+        {
+            try
+            {
+                this.alumnoService.CancelReservaWeb(alumnoId, claseId);
+                return Ok("Se cancelo reserva.");
+            }
+            catch (System.ArgumentException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (ValidationException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (System.Exception)
+            {
+                return StatusCode(500, "Algo salió mal.");
+            }
+        }
+
+        [HttpDelete("{alumnoId}/cancelmanual/{claseId}")]
+        public IActionResult CancelReservaManual([FromRoute] int alumnoId, int claseId)
+        {
+            try
+            {
+                this.alumnoService.CancelReservaManual(alumnoId, claseId);
+                return Ok("Se cancelo reserva.");
+            }
+            catch (System.ArgumentException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (ValidationException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (System.Exception)
+            {
+                return StatusCode(500, "Algo salió mal.");
+            }
+        }
+
         [HttpPut("{id}")]
         public IActionResult Put([FromRoute] int id, [FromBody] AlumnoDTO alumnoDTOUpdate)
         {

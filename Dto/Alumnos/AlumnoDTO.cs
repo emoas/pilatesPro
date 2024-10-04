@@ -23,6 +23,7 @@ namespace Dto
         public PlanDTO? Plan { get; set; }
         public ICollection<ClaseFijaDTO> ClasesFijas { get; set; }
         public ICollection<ClaseDTO> Clases { get; set; }
+        public int CuposPendientes { get; set; }
         public AlumnoDTO()
         {
         }

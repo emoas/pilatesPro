@@ -427,6 +427,9 @@ namespace DataAccess.Migrations
                         .HasColumnType("longtext")
                         .HasColumnName("Alumno_ContactoEmergencia");
 
+                    b.Property<int>("CuposPendientes")
+                        .HasColumnType("int");
+
                     b.Property<string>("Direccion")
                         .HasColumnType("longtext")
                         .HasColumnName("Alumno_Direccion");

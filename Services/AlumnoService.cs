@@ -20,10 +20,10 @@ namespace Services
         private IRepository<Plan> planRepository;
         private IRepository<Clase> claseRepository;
         private IRepository<ClaseFija> claseFijaRepository;
-        private IRepository<AlumnoClase> alumnoClaseRepository;
+        private IAlumnoClaseRepository alumnoClaseRepository;
         private IAgendaService agendaService;
         private IMapper mapper;
-        public AlumnoService(IRepository<AlumnoClase> alumnoClaseRepository,IAgendaService agendaService,IMapper mapper, IAlumnoRepository alumnoRepository, IRepository<ClaseFija> claseFijaRepository, IRepository<Plan> planRepository, IRepository<Patologia> patologiaRepository, IRepository<Clase> claseRepository)
+        public AlumnoService(IAlumnoClaseRepository alumnoClaseRepository,IAgendaService agendaService,IMapper mapper, IAlumnoRepository alumnoRepository, IRepository<ClaseFija> claseFijaRepository, IRepository<Plan> planRepository, IRepository<Patologia> patologiaRepository, IRepository<Clase> claseRepository)
         {
             this.alumnoRepository = alumnoRepository;
             this.patologiaRepository = patologiaRepository;
@@ -176,7 +176,7 @@ namespace Services
                 Hora = claseFijaDTO.Hora,
             };
             Alumno alumnoToUpdate = this.alumnoRepository.IncludeAll("ClasesFijas", "Plan").FirstOrDefault(a => a.Id == idAlumno);
-                if ((alumnoToUpdate.ClasesFijas.Count < alumnoToUpdate.Plan.VecesxSemana) || alumnoToUpdate.Plan.VecesxSemana==0)
+                if (puedeAgregarFija(alumnoToUpdate,claseFija))
             {
                 alumnoToUpdate.ClasesFijas.Add(claseFija);
                 this.alumnoRepository.Update(alumnoToUpdate);
@@ -185,6 +185,25 @@ namespace Services
             }else
                 throw new Exception("Se supero la cantidad de clases por semana");
             return claseFijaDTO;
+        }
+
+        private bool puedeAgregarFija(Alumno alumno, ClaseFija claseFija)
+        {
+            bool puede = false;
+            if (alumno.Plan.Tipo == Plan.tipo.SEMANAL)
+            {
+                if ((alumno.ClasesFijas.Count(c => c.ActividadId != alumno.Plan.ActividadLibreId) < alumno.Plan.VecesxSemana) || alumno.Plan.VecesxSemana == 0)
+                    puede = true;
+                if (alumno.Plan.ActividadLibreId != null && alumno.Plan.ActividadLibreId == claseFija.ActividadId)
+                    puede = true;
+            }
+            else if (alumno.Plan.Tipo == Plan.tipo.PASE_LIBRE)
+            {
+            }
+            else if (alumno.Plan.Tipo == Plan.tipo.TU_PASE)
+            {
+            }
+            return puede;
         }
 
         public ClaseFijaDTO UpdateClaseFija(int id, ClaseFijaDTO claseFijaDTO)
@@ -262,6 +281,50 @@ namespace Services
             this.claseRepository.Update(claseUpdate);
         }
 
+        public void CancelReservaManual(int alumnoId, int claseId)
+        {
+            Clase claseUpdate = this.claseRepository.IncludeAll("ClasesAlumno").FirstOrDefault(c => c.Id == claseId);
+
+            var alumnoClaseAEliminar = claseUpdate.ClasesAlumno.FirstOrDefault(ac => ac.AlumnoId == alumnoId);
+
+            if (alumnoClaseAEliminar != null)
+            {
+                claseUpdate.ClasesAlumno.Remove(alumnoClaseAEliminar);
+                claseUpdate.CuposOtorgados--;
+                this.alumnoClaseRepository.Delete(alumnoClaseAEliminar);
+                if (alumnoClaseAEliminar.Tipo == AlumnoClase.tipo.FIJO)
+                {
+                    Alumno alumno = this.alumnoRepository.GetAll().FirstOrDefault(a => a.Id == alumnoId);
+                    alumno.CuposPendientes++;
+                    this.alumnoRepository.Update(alumno);
+                }
+            }
+            this.claseRepository.Update(claseUpdate);
+        }
+
+        public void CancelReservaWeb(int alumnoId, int claseId)
+        {
+            Clase claseUpdate = this.claseRepository.IncludeAll("ClasesAlumno").FirstOrDefault(c => c.Id == claseId);
+
+            var alumnoClaseAEliminar = claseUpdate.ClasesAlumno.FirstOrDefault(ac => ac.AlumnoId == alumnoId);
+
+            if (alumnoClaseAEliminar != null)
+            {
+                claseUpdate.ClasesAlumno.Remove(alumnoClaseAEliminar);
+                claseUpdate.CuposOtorgados--;
+                this.alumnoClaseRepository.Delete(alumnoClaseAEliminar);
+                DateTime fechaActual = DateTime.Now; // Fecha y hora actual
+                DateTime limiteCancelacion = claseUpdate.HorarioInicio.AddHours(-2);
+                if (alumnoClaseAEliminar.Tipo == AlumnoClase.tipo.FIJO && fechaActual <= limiteCancelacion)
+                {
+                    Alumno alumno = this.alumnoRepository.GetAll().FirstOrDefault(a => a.Id == alumnoId);
+                    alumno.CuposPendientes++;
+                    this.alumnoRepository.Update(alumno);
+                }
+            }
+            this.claseRepository.Update(claseUpdate);
+        }
+
         private void QuitarAlumnoTodasLasClases(int alumnoId)
         {
             var alumnosClases = this.alumnoClaseRepository.IncludeAll().Where(ac => ac.AlumnoId == alumnoId).ToList();
@@ -317,8 +380,13 @@ namespace Services
                 }
             }
         }
-
+        // Método original sin modificación del tipo
         public bool agregarAlumnoAClase(int alumnoId, int claseId, AlumnoClase.tipo tipo)
+        {
+            return agregarAlumnoAClase(alumnoId, claseId, ref tipo); // Llamar al método con ref
+        }
+
+        public bool agregarAlumnoAClase(int alumnoId, int claseId, ref AlumnoClase.tipo tipo)
         {
             try
             {
@@ -333,7 +401,7 @@ namespace Services
                 bool existe = clase.ClasesAlumno.Any(ac => ac.AlumnoId == alumnoId);
                 if (!existe && alumno.Activo)
                 {
-                    if (puedeReservar(alumno, clase))
+                    if (tipo == AlumnoClase.tipo.ADMIN || puedeReservar(alumno, clase, ref tipo))
                     {
                         AlumnoClase alumnoClase = new AlumnoClase
                         {
@@ -343,6 +411,11 @@ namespace Services
                         clase.CuposOtorgados++;
                         clase.ClasesAlumno.Add(alumnoClase);
                         this.claseRepository.Update(clase);
+                        if (tipo == AlumnoClase.tipo.RECUPERACION)
+                        {
+                            alumno.CuposPendientes--;
+                            this.alumnoRepository.Update(alumno);
+                        }
                         return true; // Indicar que la operación fue exitosa
                     }
                     else
@@ -353,7 +426,7 @@ namespace Services
                 }
                 else
                 {
-                    return false; // El alumno ya está en la clase
+                    return false; // El alumno ya está en la clase o esta inactivo
                 }
             }
             catch (Exception ex)
@@ -364,43 +437,69 @@ namespace Services
             }
         }
 
-        private bool puedeReservar(Alumno alumno, Clase clase)
+        private bool puedeReservar(Alumno alumno, Clase clase, ref AlumnoClase.tipo tipo)
         {
+            bool cuposDisponibles = clase.CuposOtorgados < clase.CuposTotales;
+            bool actividadEnPlan = alumno.Plan.Actividades.Any(a => a.Id == clase.ActividadId);
             bool puede = false;
-            if (alumno.Plan.Tipo == Plan.tipo.SEMANAL)
+
+            switch (alumno.Plan.Tipo)
             {
-                if (clase.CuposOtorgados < clase.CuposTotales && (this.GetMisReservasSemana(alumno.Id, clase.HorarioInicio) < alumno.Plan.VecesxSemana || alumno.Plan.VecesxSemana == 0))
-                    puede = true;
-                if (!alumno.Plan.Actividades.Any(a => a.Id == clase.ActividadId))//si no esta en las actividades del plan
-                    puede = false;
-                if (alumno.Plan.ActividadLibreId == clase.ActividadId && clase.CuposOtorgados < clase.CuposTotales)
-                    puede = true;
-            }else if (alumno.Plan.Tipo == Plan.tipo.PASE_LIBRE)
-            {
-                if (clase.CuposOtorgados < clase.CuposTotales && (this.GetMisReservasMes(alumno.Id, clase.HorarioInicio) < alumno.Plan.VecesxMes))
-                    puede = true;
-                if (!alumno.Plan.Actividades.Any(a => a.Id == clase.ActividadId))//si no esta en las actividades del plan
-                    puede = false;
-            }else if (alumno.Plan.Tipo == Plan.tipo.TU_PASE)
-            {
-                if (clase.CuposOtorgados<clase.CuposTotales)
-                    puede = true;
-                if (!alumno.Plan.Actividades.Any(a => a.Id == clase.ActividadId))//si no esta en las actividades del plan
-                    puede = false;
+                case Plan.tipo.SEMANAL:
+                    // Verificar si tiene cupos semanales o ilimitados
+                    bool puedeReservarSemanal = this.GetMisReservasSemana(alumno.Id, clase.HorarioInicio) < alumno.Plan.VecesxSemana || alumno.Plan.VecesxSemana == 0;
+
+                    if (cuposDisponibles && puedeReservarSemanal && actividadEnPlan && tipo != AlumnoClase.tipo.WEB)
+                    {
+                        puede = true;
+                    }
+                    // Actividad libre
+                    if (cuposDisponibles && alumno.Plan.ActividadLibreId == clase.ActividadId)
+                        puede = true;
+                    //Clase de recuperacion
+                    if (cuposDisponibles && actividadEnPlan && alumno.CuposPendientes>0 && (tipo== AlumnoClase.tipo.WEB || tipo == AlumnoClase.tipo.RECUPERACION)) {
+                        puede = true;
+                        tipo = AlumnoClase.tipo.RECUPERACION;
+                    }
+                    break;
+
+                case Plan.tipo.PASE_LIBRE:
+                    // Verificar si tiene cupos mensuales
+                    bool puedeReservarMensual = this.GetMisReservasMes(alumno.Id, clase.HorarioInicio) < alumno.Plan.VecesxMes;
+
+                    if (cuposDisponibles && puedeReservarMensual && actividadEnPlan)
+                        puede = true;
+                    break;
+
+                case Plan.tipo.TU_PASE:
+                    // Pase sin restricciones de cantidad
+                    if (cuposDisponibles && actividadEnPlan)
+                        puede = true;
+                    break;
             }
+
             return puede;
         }
 
-        public IEnumerable<ClaseDTO> GetMisReservas(int idAlumno)
+        public IEnumerable<AlumnoClaseDTO> GetMisReservas(int idAlumno)
         {
             DateTime today = DateTime.Now;
-            DateTime oneMonthLater = today.AddMonths(1);
-            var clases = this.claseRepository.IncludeAll("Local", "Actividad", "ClasesAlumno")
-                                .Where(c => c.ClasesAlumno.Any(ac => ac.AlumnoId == idAlumno)
-                                        && c.HorarioInicio >= today
-                                        && c.HorarioInicio <= oneMonthLater)
-                                .OrderBy(c => c.HorarioInicio);
-            return this.mapper.Map<IEnumerable<ClaseDTO>>(clases);
+
+            // Obtener el día de inicio de la semana actual (lunes)
+            int daysUntilMonday = ((int)DayOfWeek.Monday - (int)today.DayOfWeek + 7) % 7;
+            DateTime startOfWeek = today.AddDays(-daysUntilMonday);
+
+            // Obtener el sábado de la siguiente semana
+            DateTime endOfNextWeek = startOfWeek.AddDays(13); // Lunes + 13 días = siguiente sábado
+
+            // Filtrar las clases entre el lunes de la semana actual y el sábado de la siguiente semana
+            var alumnoClases = this.alumnoClaseRepository.IncludeAllAnidado("Clase", "Clase.Actividad", "Clase.Local", "Alumno")
+                                    .Where(ac => ac.AlumnoId == idAlumno
+                                            && ac.Clase.HorarioInicio >= today
+                                            && ac.Clase.HorarioInicio <= endOfNextWeek)
+                                    .OrderBy(ac => ac.Clase.HorarioInicio);
+
+            return this.mapper.Map<IEnumerable<AlumnoClaseDTO>>(alumnoClases);
         }
 
         public int GetMisReservasSemana(int alumnoId, DateTime dayOfWeek)

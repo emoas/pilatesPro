@@ -15,13 +15,15 @@ namespace ServicesInterface
         AlumnoDTO Update(AlumnoDTO alumnoDTOUpdate);
         void Desactivate(int alumnoId);
         void RemoveAlumnoClase(int alumnoId, int claseId);
+        void CancelReservaManual(int alumnoId, int claseId);
+        void CancelReservaWeb(int alumnoId, int claseId);
         void addClasesFijasAlumno(int alumnoId, ClaseFijaDTO claseFija);
         void RemoveClaseFija(int id);
         AlumnoDTO GetId(int alumnoId);
         ClaseFijaDTO AddClaseFija(int idAlumno, ClaseFijaDTO claseFija);
         ClaseFijaDTO UpdateClaseFija(int id, ClaseFijaDTO claseFija);
         IEnumerable<ClaseFijaDTO> GetFijasAlumno(int idAlumno);
-        IEnumerable<ClaseDTO> GetMisReservas(int idAlumno);
+        IEnumerable<AlumnoClaseDTO> GetMisReservas(int idAlumno);
         int GetMisReservasSemana(int alumnoId, DateTime dayOfWeek);
         bool agregarAlumnoAClase(int alumnoId, int claseId, AlumnoClase.tipo tipo);
         void UpdateClasesAlumno(int claseId);

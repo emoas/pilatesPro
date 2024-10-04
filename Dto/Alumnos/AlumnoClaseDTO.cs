@@ -10,7 +10,7 @@ namespace Dto.Alumnos
         public int Id { get; set; }
         public int AlumnoId { get; set; }
         public AlumnoDTO Alumno { get; set; }
-        public enum tipo { FIJO, PUNTUAL, WEB }
+        public enum tipo { FIJO, PUNTUAL, WEB, RECUPERACION, ADMIN }
         public tipo Tipo { get; set; }
         public int ClaseId { get; set; }
         public ClaseDTO Clase { get; set; }

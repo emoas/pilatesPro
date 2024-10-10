@@ -86,6 +86,11 @@ namespace DataAccess.Repositories
                         queryable = queryable.Include(c => c.Clase)
                                              .ThenInclude(a => a.Local);
                     }
+                    else if (includeParts.Length == 2 && includeParts[0] == "Alumno" && includeParts[1] == "Plan")
+                    {
+                        queryable = queryable.Include(c => c.Alumno)
+                                             .ThenInclude(a => a.Plan);
+                    }
                 }
                 else
                 {

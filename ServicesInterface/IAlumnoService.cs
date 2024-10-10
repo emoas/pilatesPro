@@ -25,7 +25,10 @@ namespace ServicesInterface
         IEnumerable<ClaseFijaDTO> GetFijasAlumno(int idAlumno);
         IEnumerable<AlumnoClaseDTO> GetMisReservas(int idAlumno);
         int GetMisReservasSemana(int alumnoId, DateTime dayOfWeek);
+        IEnumerable<AlumnoClaseDTO> GetReservasPeriodo(int alumnoId, DateTime desde, DateTime hasta);
         bool agregarAlumnoAClase(int alumnoId, int claseId, AlumnoClase.tipo tipo);
         void UpdateClasesAlumno(int claseId);
+        void AgregarFalta(int alumnoId, int claseId);
+        int ObtenerFaltasDelMes(int alumnoId, DateTime fecha);
     }
 }

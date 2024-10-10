@@ -26,6 +26,7 @@ namespace Domain
         public ICollection<ClaseFija> ClasesFijas { get; set; }
         public ICollection<AlumnoClase> ClasesAlumno { get; set; }
         public int CuposPendientes { get; set; }
+        public ICollection<Falta> Faltas { get; set; } = new List<Falta>();
 
         public Alumno()
         {

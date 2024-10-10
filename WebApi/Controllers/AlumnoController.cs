@@ -62,6 +62,27 @@ namespace WebApi.Controllers
                 return StatusCode(500, "Algo salió mal.(" + exception.Message + ")");
             }
         }
+        [HttpPost("addFalta/{idAlumno}/{fecha}")]
+        public IActionResult AddFalta([FromRoute] int idAlumno,int claseId)
+        {
+            try
+            {
+                this.alumnoService.AgregarFalta(idAlumno, claseId);
+                return Ok("Se agrego correctamente la falta");
+            }
+            catch (System.ArgumentException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (ValidationException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (System.Exception exception)
+            {
+                return StatusCode(500, "Algo salió mal.(" + exception.Message + ")");
+            }
+        }
 
         [HttpPost("fija/{idAlumno}")]
         public IActionResult AddClaseFija([FromRoute] int idAlumno, [FromBody] ClaseFijaDTO claseFijaDTO)
@@ -170,6 +191,48 @@ namespace WebApi.Controllers
                 return StatusCode(500, "Algo salió mal.");
             }
         }
+        [HttpGet("reservasPeriodo/{idAlumno}/{desde}/{hasta}")]
+        public IActionResult GetReservasPeriodo([FromRoute] int idAlumno, DateTime desde, DateTime hasta)
+        {
+            try
+            {
+                var clases = this.alumnoService.GetReservasPeriodo(idAlumno, desde,hasta);
+                return Ok(clases);
+            }
+            catch (System.ArgumentException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (ValidationException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (System.Exception)
+            {
+                return StatusCode(500, "Algo salió mal.");
+            }
+        }
+        [HttpGet("faltas/{idAlumno}/{fecha}")]
+        public IActionResult GetFaltas([FromRoute] int idAlumno,DateTime fecha)
+        {
+            try
+            {
+                var total = this.alumnoService.ObtenerFaltasDelMes(idAlumno,fecha);
+                return Ok(total);
+            }
+            catch (System.ArgumentException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (ValidationException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (System.Exception)
+            {
+                return StatusCode(500, "Algo salió mal.");
+            }
+        }
 
         [HttpDelete("{alumnoId}")]
         public IActionResult Desactivate(int alumnoId)
@@ -230,7 +293,7 @@ namespace WebApi.Controllers
             {
                 return BadRequest(exception.Message);
             }
-            catch (System.Exception)
+            catch (System.Exception exception)
             {
                 return StatusCode(500, "Algo salió mal.");
             }

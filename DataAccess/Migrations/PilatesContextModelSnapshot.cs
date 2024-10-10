@@ -170,6 +170,30 @@ namespace DataAccess.Migrations
                     b.ToTable("AlumnoClase");
                 });
 
+            modelBuilder.Entity("Domain.Alumnos.Falta", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("AlumnoId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ClaseId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AlumnoId");
+
+                    b.HasIndex("ClaseId");
+
+                    b.ToTable("Faltas");
+                });
+
             modelBuilder.Entity("Domain.Clase", b =>
                 {
                     b.Property<int>("Id")
@@ -348,7 +372,7 @@ namespace DataAccess.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<string>("Email")
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(255)");
 
                     b.Property<string>("Name")
                         .HasColumnType("longtext");
@@ -363,6 +387,9 @@ namespace DataAccess.Migrations
                         .HasColumnType("char(36)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
 
                     b.ToTable("Users");
 
@@ -599,6 +626,25 @@ namespace DataAccess.Migrations
                     b.Navigation("Clase");
                 });
 
+            modelBuilder.Entity("Domain.Alumnos.Falta", b =>
+                {
+                    b.HasOne("Domain.Alumno", "Alumno")
+                        .WithMany("Faltas")
+                        .HasForeignKey("AlumnoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Clase", "Clase")
+                        .WithMany()
+                        .HasForeignKey("ClaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Alumno");
+
+                    b.Navigation("Clase");
+                });
+
             modelBuilder.Entity("Domain.Clase", b =>
                 {
                     b.HasOne("Domain.Actividad", "Actividad")
@@ -707,6 +753,8 @@ namespace DataAccess.Migrations
                     b.Navigation("ClasesAlumno");
 
                     b.Navigation("ClasesFijas");
+
+                    b.Navigation("Faltas");
                 });
 #pragma warning restore 612, 618
         }

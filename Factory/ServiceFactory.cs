@@ -47,7 +47,9 @@ namespace Factory
             services.AddScoped<IRepository<Plan>, Repository<Plan>>();
             services.AddScoped<IActividadRepository, ActividadRepository>();
             services.AddScoped<IAlumnoClaseRepository, AlumnoClaseRepository>();
+            services.AddScoped<IClaseRepository, ClaseRepository>();
             services.AddScoped<IRepository<ClaseFija>, Repository<ClaseFija>>();
+            services.AddScoped<IRepository<Falta>, Repository<Falta>>();
         }
 
         private void AddServices()
@@ -64,7 +66,8 @@ namespace Factory
             services.AddScoped<IPatologiaService, PatologiaService>();
             services.AddScoped<IPlanService, PlanService>();
             services.AddScoped<IDashBoardService, DashBoardService>();
-            
+            services.AddScoped<IReportService, ReportService>();
+
         }
 
         public void AddDbContextService()

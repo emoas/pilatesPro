@@ -1,4 +1,5 @@
 ﻿using Domain;
+using Domain.Alumnos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System.IO;
@@ -16,6 +17,7 @@ namespace DataAccess.Context
         public DbSet<Agenda> Agendas { get; set; }
         public DbSet<Plan> Planes { get; set; }
         public DbSet<ClaseFija> ClasesFijas { get; set; }
+        public DbSet<Falta> Faltas { get; set; }
         public PilatesContext() { }
         public PilatesContext(DbContextOptions options) : base(options) { }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -47,6 +49,11 @@ namespace DataAccess.Context
                     .HasForeignKey(ac => ac.ClaseId)
                     .OnDelete(DeleteBehavior.Cascade); // Elimina ClasesAlumno cuando se elimina Clase
             });
+
+            // Definir que el atributo Email sea único
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();  // Agregar la restricción de unicidad
 
             base.OnModelCreating(modelBuilder);
         }

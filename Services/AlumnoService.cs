@@ -310,9 +310,10 @@ namespace Services
 
             if (alumnoClaseAEliminar != null)
             {
-                claseUpdate.ClasesAlumno.Remove(alumnoClaseAEliminar);
+                //claseUpdate.ClasesAlumno.Remove(alumnoClaseAEliminar);
+                alumnoClaseAEliminar.Estado = AlumnoClase.estado.CANCELADA;
                 claseUpdate.CuposOtorgados--;
-                this.alumnoClaseRepository.Delete(alumnoClaseAEliminar);
+                this.alumnoClaseRepository.Update(alumnoClaseAEliminar);
                 if (alumnoClaseAEliminar.Tipo == AlumnoClase.tipo.FIJO)
                 {
                     Alumno alumno = this.alumnoRepository.GetAll().FirstOrDefault(a => a.Id == alumnoId);
@@ -332,9 +333,10 @@ namespace Services
 
             if (alumnoClaseAEliminar != null)
             {
-                claseUpdate.ClasesAlumno.Remove(alumnoClaseAEliminar);
+                //claseUpdate.ClasesAlumno.Remove(alumnoClaseAEliminar);
+                alumnoClaseAEliminar.Estado = AlumnoClase.estado.CANCELADA;
                 claseUpdate.CuposOtorgados--;
-                this.alumnoClaseRepository.Delete(alumnoClaseAEliminar);
+                this.alumnoClaseRepository.Update(alumnoClaseAEliminar);
                 DateTime fechaActual = DateTime.Now; // Fecha y hora actual
                 DateTime limiteCancelacion = claseUpdate.HorarioInicio.AddHours(-2);
                 if (alumnoClaseAEliminar.Tipo == AlumnoClase.tipo.FIJO && fechaActual <= limiteCancelacion)
@@ -422,7 +424,7 @@ namespace Services
                     // Registrar un mensaje o lanzar una excepción específica si es necesario
                     return false; // Indicar que la operación falló debido a datos no encontrados
                 }
-                bool existe = clase.ClasesAlumno.Any(ac => ac.AlumnoId == alumnoId);
+                bool existe = clase.ClasesAlumno.Any(ac => ac.AlumnoId == alumnoId && ac.Estado==AlumnoClase.estado.CONFIRMADA);
                 if (!existe && alumno.Activo)
                 {
                     if (tipo == AlumnoClase.tipo.ADMIN || puedeReservar(alumno, clase, ref tipo))
@@ -430,7 +432,8 @@ namespace Services
                         AlumnoClase alumnoClase = new AlumnoClase
                         {
                             AlumnoId = alumnoId,
-                            Tipo = tipo
+                            Tipo = tipo,
+                            Estado=AlumnoClase.estado.CONFIRMADA
                         };
                         clase.CuposOtorgados++;
                         clase.ClasesAlumno.Add(alumnoClase);
@@ -518,7 +521,8 @@ namespace Services
             var alumnoClases = this.alumnoClaseRepository.IncludeAllAnidado("Clase", "Clase.Actividad", "Clase.Local", "Alumno")
                                     .Where(ac => ac.AlumnoId == idAlumno
                                             && ac.Clase.HorarioInicio >= today
-                                            && ac.Clase.HorarioInicio <= endOfNextWeek)
+                                            && ac.Clase.HorarioInicio <= endOfNextWeek
+                                            && ac.Estado == AlumnoClase.estado.CONFIRMADA)
                                     .OrderBy(ac => ac.Clase.HorarioInicio);
 
             return this.mapper.Map<IEnumerable<AlumnoClaseDTO>>(alumnoClases);
@@ -533,7 +537,8 @@ namespace Services
                     .Where(ac => ac.AlumnoId == alumnoId &&
                                  ac.Alumno.Plan.ActividadLibreId!=ac.Clase.ActividadId &&
                                  ac.Clase.HorarioInicio >= startOfWeek &&
-                                 ac.Clase.HorarioFin <= endOfWeek)
+                                 ac.Clase.HorarioFin <= endOfWeek
+                                 && ac.Estado == AlumnoClase.estado.CONFIRMADA)
                     .Count();
                 return count;
         }
@@ -549,7 +554,8 @@ namespace Services
             var count = this.alumnoClaseRepository.IncludeAll("Clase")
                 .Where(ac => ac.AlumnoId == alumnoId &&
                              ac.Clase.HorarioInicio >= startOfMonth &&
-                             ac.Clase.HorarioFin <= endOfMonth)
+                             ac.Clase.HorarioFin <= endOfMonth
+                             && ac.Estado == AlumnoClase.estado.CONFIRMADA)
                 .Count();
 
             return count;

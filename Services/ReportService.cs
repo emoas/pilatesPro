@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using DataAccessInterface.Repositories;
 using Domain;
+using Domain.Alumnos;
 using Dto.Reports;
 using ServicesInterface;
 using System;
@@ -38,7 +39,7 @@ namespace Services
             // Iterar sobre las clases y extraer las reservas de los alumnos con el plan especificado
             foreach (var clase in reservas)
             {
-                foreach (var claseAlumno in clase.ClasesAlumno.Where(ca => ca.Alumno.PlanId == planId))
+                foreach (var claseAlumno in clase.ClasesAlumno.Where(ca => ca.Alumno.PlanId == planId && ca.Estado== AlumnoClase.estado.CONFIRMADA))
                 {
                     var reserva = new ReservaPorPlanDTO
                     {

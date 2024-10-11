@@ -3,6 +3,7 @@ using Commons.Exceptions;
 using DataAccessInterface.Repositories;
 using Domain;
 using Domain.Alumnos;
+using Domain.Logs;
 using Dto;
 using Dto.Alumnos;
 using ServicesInterface;
@@ -23,8 +24,9 @@ namespace Services
         private IRepository<Falta> faltaRepository;
         private IAlumnoClaseRepository alumnoClaseRepository;
         private IAgendaService agendaService;
+        private ILogService logService;
         private IMapper mapper;
-        public AlumnoService(IAlumnoClaseRepository alumnoClaseRepository,IAgendaService agendaService,IMapper mapper, IAlumnoRepository alumnoRepository, IRepository<ClaseFija> claseFijaRepository, IRepository<Plan> planRepository, IRepository<Patologia> patologiaRepository, IRepository<Clase> claseRepository, IRepository<Falta> faltaRepository)
+        public AlumnoService(IAlumnoClaseRepository alumnoClaseRepository, ILogService logService,IAgendaService agendaService,IMapper mapper, IAlumnoRepository alumnoRepository, IRepository<ClaseFija> claseFijaRepository, IRepository<Plan> planRepository, IRepository<Patologia> patologiaRepository, IRepository<Clase> claseRepository, IRepository<Falta> faltaRepository)
         {
             this.alumnoRepository = alumnoRepository;
             this.patologiaRepository = patologiaRepository;
@@ -35,6 +37,7 @@ namespace Services
             this.alumnoClaseRepository = alumnoClaseRepository;
             this.mapper = mapper;
             this.agendaService = agendaService;
+            this.logService = logService;
         }
 
         public AlumnoDTO Add(AlumnoDTO alumnoDTO)
@@ -422,6 +425,16 @@ namespace Services
                 if (alumno == null || clase == null)
                 {
                     // Registrar un mensaje o lanzar una excepción específica si es necesario
+                    // Opcional: registrar el error o realizar alguna acción
+                    Logs_AddAlumnoClase logsAlumnoClase = new Logs_AddAlumnoClase
+                    {
+                        AlumnoId = alumnoId,
+                        ClaseId = claseId,
+                        Fecha = DateTime.Now,
+                        Estado = Logs_AddAlumnoClase.estado.PENDIENTE,
+                        Descripcion = $"No se encontro la clase o el alumno"
+                    };
+                    this.logService.AddAlumnoClase(logsAlumnoClase);
                     return false; // Indicar que la operación falló debido a datos no encontrados
                 }
                 bool existe = clase.ClasesAlumno.Any(ac => ac.AlumnoId == alumnoId && ac.Estado==AlumnoClase.estado.CONFIRMADA);
@@ -448,12 +461,30 @@ namespace Services
                     else
                     {
                         // Opcional: registrar el error o realizar alguna acción
+                        Logs_AddAlumnoClase logsAlumnoClase = new Logs_AddAlumnoClase
+                        {
+                            AlumnoId = alumnoId,
+                            ClaseId = claseId,
+                            Fecha = DateTime.Now,
+                            Estado = Logs_AddAlumnoClase.estado.PENDIENTE,
+                            Descripcion = $"El alumno no pudo agregarse por su plan, tipo: ({tipo})"
+                        };
+                        this.logService.AddAlumnoClase(logsAlumnoClase);
                         return false; // El plan no permite agregar el alumno
                     }
                 }
                 else
                 {
-                    return false; // El alumno ya está en la clase o esta inactivo
+                    Logs_AddAlumnoClase logsAlumnoClase = new Logs_AddAlumnoClase
+                    {
+                        AlumnoId = alumnoId,
+                        ClaseId = claseId,
+                        Fecha=DateTime.Now,
+                        Estado= Logs_AddAlumnoClase.estado.PENDIENTE,
+                        Descripcion = $"El alumno no pudo agregarse a la clase, existe: ({existe}) , activo: ({alumno.Activo})."
+                    };
+                    this.logService.AddAlumnoClase(logsAlumnoClase);
+                    return false; // El alumno ya está en la clase o esta inactivo/mantenimiento
                 }
             }
             catch (Exception ex)

@@ -309,6 +309,32 @@ namespace DataAccess.Migrations
                     b.ToTable("Local");
                 });
 
+            modelBuilder.Entity("Domain.Logs.Logs_AddAlumnoClase", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("AlumnoId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ClaseId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Descripcion")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("Estado")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Logs_AlumnoClase");
+                });
+
             modelBuilder.Entity("Domain.Patologia", b =>
                 {
                     b.Property<int>("Id")

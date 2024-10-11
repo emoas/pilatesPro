@@ -74,7 +74,7 @@ namespace Services
 
         public IEnumerable<ClaseDTO> ActividadesParaReservar(int alumnoId,int actividadId, DateTime fechaDesde, DateTime fechaTo)
         {
-            var clases = this.claseRepository.IncludeAll("Local", "Actividad", "ClasesAlumno")
+            var clases = this.claseRepository.IncludeAll("Local", "Actividad", "ClasesAlumno","Profesor")
                 .Where(c => c.ActividadId == actividadId
                  && c.Activo == true
                  && c.HorarioInicio >= fechaDesde

@@ -1,5 +1,6 @@
 ﻿using Domain;
 using Domain.Alumnos;
+using Domain.Logs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System.IO;
@@ -18,6 +19,7 @@ namespace DataAccess.Context
         public DbSet<Plan> Planes { get; set; }
         public DbSet<ClaseFija> ClasesFijas { get; set; }
         public DbSet<Falta> Faltas { get; set; }
+        public DbSet<Logs_AddAlumnoClase> Logs_AlumnoClase { get; set; }
         public PilatesContext() { }
         public PilatesContext(DbContextOptions options) : base(options) { }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

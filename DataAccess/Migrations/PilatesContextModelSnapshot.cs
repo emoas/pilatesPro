@@ -161,6 +161,9 @@ namespace DataAccess.Migrations
                     b.Property<int>("Estado")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("FechaCancelacion")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<int>("Tipo")
                         .HasColumnType("int");
 
@@ -171,6 +174,34 @@ namespace DataAccess.Migrations
                     b.HasIndex("ClaseId");
 
                     b.ToTable("AlumnoClase");
+                });
+
+            modelBuilder.Entity("Domain.Alumnos.CupoPendiente", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("AlumnoId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Estado")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("FechaExpiracion")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("Tipo")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AlumnoId");
+
+                    b.ToTable("CupoPendiente");
                 });
 
             modelBuilder.Entity("Domain.Alumnos.Falta", b =>
@@ -329,6 +360,12 @@ namespace DataAccess.Migrations
 
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<int>("Tipo")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -655,6 +692,17 @@ namespace DataAccess.Migrations
                     b.Navigation("Clase");
                 });
 
+            modelBuilder.Entity("Domain.Alumnos.CupoPendiente", b =>
+                {
+                    b.HasOne("Domain.Alumno", "Alumno")
+                        .WithMany("Cupos")
+                        .HasForeignKey("AlumnoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Alumno");
+                });
+
             modelBuilder.Entity("Domain.Alumnos.Falta", b =>
                 {
                     b.HasOne("Domain.Alumno", "Alumno")
@@ -782,6 +830,8 @@ namespace DataAccess.Migrations
                     b.Navigation("ClasesAlumno");
 
                     b.Navigation("ClasesFijas");
+
+                    b.Navigation("Cupos");
 
                     b.Navigation("Faltas");
                 });

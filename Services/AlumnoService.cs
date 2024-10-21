@@ -308,23 +308,49 @@ namespace Services
         public void CancelReservaManual(int alumnoId, int claseId)
         {
             Clase claseUpdate = this.claseRepository.IncludeAll("ClasesAlumno").FirstOrDefault(c => c.Id == claseId);
-
-            var alumnoClaseAEliminar = claseUpdate.ClasesAlumno.FirstOrDefault(ac => ac.AlumnoId == alumnoId);
-
-            if (alumnoClaseAEliminar != null)
+            // Hacer una copia superficial de los valores actuales de claseUpdate
+            Clase aux = new Clase
             {
-                //claseUpdate.ClasesAlumno.Remove(alumnoClaseAEliminar);
-                alumnoClaseAEliminar.Estado = AlumnoClase.estado.CANCELADA;
-                claseUpdate.CuposOtorgados--;
-                this.alumnoClaseRepository.Update(alumnoClaseAEliminar);
-                if (alumnoClaseAEliminar.Tipo == AlumnoClase.tipo.FIJO)
+                Id = claseUpdate.Id,
+                CuposOtorgados = claseUpdate.CuposOtorgados,
+                // Aquí puedes copiar otras propiedades que necesites rastrear
+            };
+            var alumnoClaseAUpdate = claseUpdate.ClasesAlumno.FirstOrDefault(ac => ac.AlumnoId == alumnoId && ac.Estado!=AlumnoClase.estado.CANCELADA);
+            if (alumnoClaseAUpdate != null)
+            {
+                alumnoClaseAUpdate.Estado = AlumnoClase.estado.CANCELADA;
+                alumnoClaseAUpdate.FechaCancelacion = DateTime.Now;
+                // Actualizar los cupos otorgados solo si es mayor a cero para evitar que queden negativos
+                if (claseUpdate.CuposOtorgados > 0)
                 {
-                    Alumno alumno = this.alumnoRepository.GetAll().FirstOrDefault(a => a.Id == alumnoId);
-                    alumno.CuposPendientes++;
-                    this.alumnoRepository.Update(alumno);
+                    claseUpdate.CuposOtorgados--;
+                    this.claseRepository.Update(claseUpdate);
+                    // Registrar un mensaje o lanzar una excepción específica si es necesario
+                    // Opcional: registrar el error o realizar alguna acción
+                    Logs_AddAlumnoClase logsAlumnoClase = new Logs_AddAlumnoClase
+                    {
+                        AlumnoId = alumnoId,
+                        ClaseId = claseId,
+                        Fecha = DateTime.Now,
+                        Estado = Logs_AddAlumnoClase.estado.PENDIENTE,
+                        Descripcion = $"El Admin cancelo la reserva (Cupos antes:{aux.CuposOtorgados} cupos despues: {claseUpdate.CuposOtorgados})",
+                        Tipo = Logs_AddAlumnoClase.tipo.CANCELACIONADMIN
+                    };
+                    this.logService.AddAlumnoClase(logsAlumnoClase);
                 }
-            }
-            this.claseRepository.Update(claseUpdate);
+                this.alumnoClaseRepository.Update(alumnoClaseAUpdate);
+                //Agrego el cupo pendiente
+                if (alumnoClaseAUpdate.Tipo == AlumnoClase.tipo.FIJO)
+                {
+                    CupoPendiente cupoPendiente = new CupoPendiente
+                    {
+                        AlumnoId = alumnoId,
+                        FechaExpiracion = DateTime.Now.AddMonths(1),
+                        Tipo = CupoPendiente.tipo.CANCELACIONADMIN,
+                    };
+                    this.AgregarCupoPendiente(cupoPendiente);
+                }
+            }          
         }
 
         public void CancelReservaWeb(int alumnoId, int claseId)
@@ -332,25 +358,44 @@ namespace Services
             Clase claseUpdate = this.claseRepository.IncludeAll("ClasesAlumno").FirstOrDefault(c => c.Id == claseId);
             Alumno alumno = this.alumnoRepository.IncludeAll().FirstOrDefault(a => a.Id == alumnoId);
 
-            var alumnoClaseAEliminar = claseUpdate.ClasesAlumno.FirstOrDefault(ac => ac.AlumnoId == alumnoId);
+            var alumnoClaseAUpdate = claseUpdate.ClasesAlumno.FirstOrDefault(ac => ac.AlumnoId == alumnoId);
 
-            if (alumnoClaseAEliminar != null)
+            if (alumnoClaseAUpdate != null)
             {
                 //claseUpdate.ClasesAlumno.Remove(alumnoClaseAEliminar);
-                alumnoClaseAEliminar.Estado = AlumnoClase.estado.CANCELADA;
+                alumnoClaseAUpdate.Estado = AlumnoClase.estado.CANCELADA;
+                alumnoClaseAUpdate.FechaCancelacion = DateTime.Now;
                 claseUpdate.CuposOtorgados--;
-                this.alumnoClaseRepository.Update(alumnoClaseAEliminar);
+                this.alumnoClaseRepository.Update(alumnoClaseAUpdate);
                 DateTime fechaActual = DateTime.Now; // Fecha y hora actual
                 DateTime limiteCancelacion = claseUpdate.HorarioInicio.AddHours(-2);
-                if (alumnoClaseAEliminar.Tipo == AlumnoClase.tipo.FIJO && fechaActual <= limiteCancelacion)
+                if (alumnoClaseAUpdate.Tipo == AlumnoClase.tipo.FIJO && fechaActual <= limiteCancelacion)
                 { 
-                    alumno.CuposPendientes++;
-                    this.alumnoRepository.Update(alumno);
-                }else if (alumno.PlanId == 39 && fechaActual >= limiteCancelacion)//Alumno Pase Libre
+                    CupoPendiente cupoPendiente = new CupoPendiente
+                    {
+                        AlumnoId = alumnoId,
+                        FechaExpiracion = DateTime.Now.AddMonths(1),
+                        Tipo = CupoPendiente.tipo.CANCELACIONWEB,
+                    };
+                    this.AgregarCupoPendiente(cupoPendiente);
+                }
+                else if (alumno.PlanId == 39 && fechaActual >= limiteCancelacion)//Alumno Pase Libre
                 {
                     this.AgregarFalta(alumnoId, claseId);
                 }
             }
+            // Registrar un mensaje o lanzar una excepción específica si es necesario
+            // Opcional: registrar el error o realizar alguna acción
+            Logs_AddAlumnoClase logsAlumnoClase = new Logs_AddAlumnoClase
+            {
+                AlumnoId = alumnoId,
+                ClaseId = claseId,
+                Fecha = DateTime.Now,
+                Estado = Logs_AddAlumnoClase.estado.PENDIENTE,
+                Descripcion = $"CANCELACIÓN WEB",
+                Tipo= Logs_AddAlumnoClase.tipo.CANCELACIONWEB
+            };
+            this.logService.AddAlumnoClase(logsAlumnoClase);
             this.claseRepository.Update(claseUpdate);
         }
 
@@ -419,9 +464,14 @@ namespace Services
         {
             try
             {
+                Logs_AddAlumnoClase.tipo tipoLog;
+                if (tipo == AlumnoClase.tipo.WEB)
+                    tipoLog = Logs_AddAlumnoClase.tipo.RESERVAWEB;
+                else
+                    tipoLog = Logs_AddAlumnoClase.tipo.RESERVAADMIN;
                 Alumno alumno = this.alumnoRepository.IncludeAllAnidado("Plan.Actividades").FirstOrDefault(a => a.Id == alumnoId);
                 Clase clase = this.claseRepository.IncludeAll("ClasesAlumno").FirstOrDefault(c => c.Id == claseId);
-                clase.CuposOtorgados = clase.ClasesAlumno.Count();
+                //clase.CuposOtorgados = clase.ClasesAlumno.Count();
                 if (alumno == null || clase == null)
                 {
                     // Registrar un mensaje o lanzar una excepción específica si es necesario
@@ -432,7 +482,8 @@ namespace Services
                         ClaseId = claseId,
                         Fecha = DateTime.Now,
                         Estado = Logs_AddAlumnoClase.estado.PENDIENTE,
-                        Descripcion = $"No se encontro la clase o el alumno"
+                        Descripcion = $"No se encontro la clase o el alumno",
+                        Tipo=tipoLog
                     };
                     this.logService.AddAlumnoClase(logsAlumnoClase);
                     return false; // Indicar que la operación falló debido a datos no encontrados
@@ -453,8 +504,7 @@ namespace Services
                         this.claseRepository.Update(clase);
                         if (tipo == AlumnoClase.tipo.RECUPERACION)
                         {
-                            alumno.CuposPendientes--;
-                            this.alumnoRepository.Update(alumno);
+                            this.usarCupoPendiente(alumnoId);
                         }
                         return true; // Indicar que la operación fue exitosa
                     }
@@ -467,7 +517,8 @@ namespace Services
                             ClaseId = claseId,
                             Fecha = DateTime.Now,
                             Estado = Logs_AddAlumnoClase.estado.PENDIENTE,
-                            Descripcion = $"El alumno no pudo agregarse por su plan, tipo: ({tipo})"
+                            Descripcion = $"El alumno no pudo agregarse por su plan, tipo: ({tipo})",
+                            Tipo = tipoLog
                         };
                         this.logService.AddAlumnoClase(logsAlumnoClase);
                         return false; // El plan no permite agregar el alumno
@@ -481,7 +532,8 @@ namespace Services
                         ClaseId = claseId,
                         Fecha=DateTime.Now,
                         Estado= Logs_AddAlumnoClase.estado.PENDIENTE,
-                        Descripcion = $"El alumno no pudo agregarse a la clase, existe: ({existe}) , activo: ({alumno.Activo})."
+                        Descripcion = $"El alumno no pudo agregarse a la clase, existe: ({existe}) , activo: ({alumno.Activo}).",
+                        Tipo = tipoLog
                     };
                     this.logService.AddAlumnoClase(logsAlumnoClase);
                     return false; // El alumno ya está en la clase o esta inactivo/mantenimiento
@@ -529,7 +581,7 @@ namespace Services
                     break;
                 case Plan.tipo.TU_PASE:
                     // Pase sin restricciones de cantidad
-                    if (cuposDisponibles && actividadEnPlan)
+                    if (cuposDisponibles && actividadEnPlan && tipo != AlumnoClase.tipo.WEB)
                         puede = true;
                     break;
             }
@@ -569,7 +621,8 @@ namespace Services
                                  ac.Alumno.Plan.ActividadLibreId!=ac.Clase.ActividadId &&
                                  ac.Clase.HorarioInicio >= startOfWeek &&
                                  ac.Clase.HorarioFin <= endOfWeek
-                                 && ac.Estado == AlumnoClase.estado.CONFIRMADA)
+                                 && ac.Estado == AlumnoClase.estado.CONFIRMADA
+                                 && ac.Tipo != AlumnoClase.tipo.RECUPERACION)
                     .Count();
                 return count;
         }
@@ -632,7 +685,62 @@ namespace Services
                 return faltasDelMes;
         }
 
+        public void AgregarCupoPendiente(CupoPendiente cupoPendiente)
+        {
+            Alumno alumno = this.alumnoRepository.IncludeAll("Cupos").FirstOrDefault(a => a.Id == cupoPendiente.AlumnoId);
+            if (alumno != null)
+            {
+                // Agregar la nueva falta
+                var cupo = new CupoPendiente
+                {
+                    FechaCreacion = DateTime.Now,
+                    FechaExpiracion = cupoPendiente.FechaExpiracion,
+                    AlumnoId = cupoPendiente.AlumnoId,
+                    Tipo = cupoPendiente.Tipo,
+                    Estado = CupoPendiente.estado.PENDIENTE,
+                };
+                alumno.Cupos.Add(cupo);
+                alumno.CuposPendientes= alumno.Cupos.Count(c => c.Estado == CupoPendiente.estado.PENDIENTE);
+                this.alumnoRepository.Update(alumno);
+            }
+        }
+
+        public void usarCupoPendiente(int alumnoId)
+        {
+            Alumno alumno = this.alumnoRepository.IncludeAll("Cupos").FirstOrDefault(a => a.Id == alumnoId);
+            if (alumno != null)
+            {
+                CupoPendiente cupoAux = this.ObtenerCupoPendienteMasCercano(alumno);
+                if (cupoAux != null)
+                {
+                    cupoAux.Estado = CupoPendiente.estado.UTILIZADO;
+                    if(alumno.CuposPendientes>0)
+                        alumno.CuposPendientes--;
+                    this.alumnoRepository.Update(alumno);
+                }
+                else
+                {
+                    throw new Exception("El alumno no posee cupos pendientes.");
+                }
+            }
+            else
+            {
+                throw new Exception("El alumno no existe.");
+            }
+        }
+        public CupoPendiente ObtenerCupoPendienteMasCercano(Alumno alumno)
+        {
+            // Filtrar los cupos pendientes y ordenarlos por fecha de expiración
+            var cupoPendienteMasCercano = alumno.Cupos
+                .Where(c => c.Estado == CupoPendiente.estado.PENDIENTE && c.FechaExpiracion.HasValue) // Solo considerar los que tienen FechaExpiracion
+                .OrderBy(c => c.FechaExpiracion) // Ordenar por la fecha de expiración más cercana
+                .FirstOrDefault(); // Obtener el primer resultado o null si no hay
+
+            return cupoPendienteMasCercano;
+        }
+
     }
+
     public static class DateTimeExtensions
     {
         public static DateTime StartOfWeek(this DateTime date, DayOfWeek firstDayOfWeek)

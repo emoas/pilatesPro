@@ -92,7 +92,9 @@ namespace Services
 
         public IEnumerable<ProfesorDTO> GetAll()
         {
-            var profesores=profeRepository.getProfesores();
+            var profesores=profeRepository.getProfesores()
+                                .OrderByDescending(p => p.Activo)
+                                .ToList();
             return this.mapper.Map<IEnumerable<ProfesorDTO>>(profesores);
         }
 
@@ -109,8 +111,16 @@ namespace Services
             {
                 throw new Exception("No existe el profesor seleccionado.");
             }
-            profe.Activo = false;
-            this.profeRepository.Update(profe);
+            if (profe.Activo)
+            {
+                //Al desactivar el alumno lo elimino las clases fijas asigandas
+                profe.Activo = false;
+            }
+            else
+            {
+                profe.Activo = true;
+            }
+            this.profeRepository.Update(profe);    
         }
 
         public ProfesorDTO Update(ProfesorDTO profesorDTOUpdate)

@@ -499,8 +499,8 @@ namespace Services
                             Tipo = tipo,
                             Estado=AlumnoClase.estado.CONFIRMADA
                         };
-                        clase.CuposOtorgados++;
                         clase.ClasesAlumno.Add(alumnoClase);
+                        clase.CuposOtorgados = clase.ClasesAlumno.Count(ac => ac.Estado == AlumnoClase.estado.CONFIRMADA);
                         this.claseRepository.Update(clase);
                         if (tipo == AlumnoClase.tipo.RECUPERACION)
                         {
@@ -559,7 +559,7 @@ namespace Services
                     // Verificar si tiene cupos semanales o ilimitados
                     bool puedeReservarSemanal = this.GetMisReservasSemana(alumno.Id, clase.HorarioInicio) < alumno.Plan.VecesxSemana || alumno.Plan.VecesxSemana == 0;
 
-                    if (cuposDisponibles && puedeReservarSemanal && actividadEnPlan && tipo != AlumnoClase.tipo.WEB)
+                    if (cuposDisponibles && puedeReservarSemanal && actividadEnPlan && tipo != AlumnoClase.tipo.RECUPERACION)
                     {
                         puede = true;
                     }
@@ -576,7 +576,8 @@ namespace Services
                     // Verificar si tiene cupos mensuales
                     bool puedeReservarMensual = this.GetMisReservasMes(alumno.Id, clase.HorarioInicio) < alumno.Plan.VecesxMes;
                     int faltas = this.ObtenerFaltasDelMes(alumno.Id, clase.HorarioInicio);
-                    if (cuposDisponibles && puedeReservarMensual && actividadEnPlan && faltas<2)
+                    bool tieneReservaenElDia = this.ReservaToday(alumno.Id, clase.HorarioInicio.Date);
+                    if (cuposDisponibles && puedeReservarMensual && actividadEnPlan && faltas<2 && !tieneReservaenElDia)
                         puede = true;
                     break;
                 case Plan.tipo.TU_PASE:
@@ -593,22 +594,40 @@ namespace Services
         {
             DateTime today = DateTime.Now;
 
+            // Obtener el primer día del mes actual
+            DateTime startOfMonth = new DateTime(today.Year, today.Month, 1);
+
             // Obtener el día de inicio de la semana actual (lunes)
-            int daysUntilMonday = ((int)DayOfWeek.Monday - (int)today.DayOfWeek + 7) % 7;
+            int daysUntilMonday = ((int)today.DayOfWeek - (int)DayOfWeek.Monday + 7) % 7;
             DateTime startOfWeek = today.AddDays(-daysUntilMonday);
 
-            // Obtener el sábado de la siguiente semana
-            DateTime endOfNextWeek = startOfWeek.AddDays(13); // Lunes + 13 días = siguiente sábado
+            // Obtener el sábado de la siguiente semana (lunes + 12 días)
+            DateTime endOfNextWeek = startOfWeek.AddDays(12); // Lunes + 12 días = siguiente sábado
 
             // Filtrar las clases entre el lunes de la semana actual y el sábado de la siguiente semana
             var alumnoClases = this.alumnoClaseRepository.IncludeAllAnidado("Clase", "Clase.Actividad", "Clase.Local", "Alumno")
                                     .Where(ac => ac.AlumnoId == idAlumno
-                                            && ac.Clase.HorarioInicio >= today
+                                            && ac.Clase.HorarioInicio >= startOfMonth
                                             && ac.Clase.HorarioInicio <= endOfNextWeek
-                                            && ac.Estado == AlumnoClase.estado.CONFIRMADA)
+                                             && (ac.Estado == AlumnoClase.estado.CONFIRMADA || ac.Estado == AlumnoClase.estado.CANCELADA))
                                     .OrderBy(ac => ac.Clase.HorarioInicio);
 
             return this.mapper.Map<IEnumerable<AlumnoClaseDTO>>(alumnoClases);
+        }
+        public bool ReservaToday(int alumnoId, DateTime day)
+        {
+            // Obtener solo la fecha sin la hora
+            DateTime dayStart = day.Date;
+            DateTime dayEnd = dayStart.AddDays(1).AddTicks(-1); // Fin del día
+
+            var count = this.alumnoClaseRepository.IncludeAll("Clase")
+                .Where(ac => ac.AlumnoId == alumnoId &&
+                             ac.Clase.HorarioInicio >= dayStart &&
+                             ac.Clase.HorarioInicio <= dayEnd && // Comparar dentro del mismo día
+                             ac.Estado == AlumnoClase.estado.CONFIRMADA)
+                .Count();
+
+            return count > 0; // Devuelve true si hay al menos una reserva
         }
 
         public int GetMisReservasSemana(int alumnoId, DateTime dayOfWeek)
@@ -730,13 +749,23 @@ namespace Services
         }
         public CupoPendiente ObtenerCupoPendienteMasCercano(Alumno alumno)
         {
-            // Filtrar los cupos pendientes y ordenarlos por fecha de expiración
-            var cupoPendienteMasCercano = alumno.Cupos
+            // Filtrar primero los cupos pendientes con fecha de expiración y ordenarlos por la fecha más cercana
+            var cupoPendienteMasCercanoConFecha = alumno.Cupos
                 .Where(c => c.Estado == CupoPendiente.estado.PENDIENTE && c.FechaExpiracion.HasValue) // Solo considerar los que tienen FechaExpiracion
                 .OrderBy(c => c.FechaExpiracion) // Ordenar por la fecha de expiración más cercana
-                .FirstOrDefault(); // Obtener el primer resultado o null si no hay
+                .FirstOrDefault();
 
-            return cupoPendienteMasCercano;
+            // Si no se encuentra cupo con fecha de expiración, buscar el primer cupo sin fecha
+            if (cupoPendienteMasCercanoConFecha == null)
+            {
+                var cupoPendienteSinFecha = alumno.Cupos
+                    .Where(c => c.Estado == CupoPendiente.estado.PENDIENTE && !c.FechaExpiracion.HasValue) // Solo los que no tienen FechaExpiracion
+                    .FirstOrDefault();
+
+                return cupoPendienteSinFecha;
+            }
+
+            return cupoPendienteMasCercanoConFecha;
         }
 
     }

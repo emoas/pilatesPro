@@ -1,8 +1,0 @@
-{
-  "runtimeOptions": {
-    "additionalProbingPaths": [
-      "C:\\Users\\Moas\\.dotnet\\store\\|arch|\\|tfm|",
-      "C:\\Users\\Moas\\.nuget\\packages"
-    ]
-  }
-}

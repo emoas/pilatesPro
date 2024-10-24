@@ -17,6 +17,8 @@ namespace Dto
         public ICollection<PatologiaDTO> PatologíasQuePresenta { get; set; }
         public string Observaciones { get; set; }
         public bool Activo { get; set; }
+        //public enum estado { NORMAL, MANTENIMIENTO, SUSPENDIDO }
+        //public estado Estado { get; set; }
         public DateTime FechaNacimiento { get; set; }
         public DateTime FechaAlta { get; set; }
         public int? PlanId { get; set; }

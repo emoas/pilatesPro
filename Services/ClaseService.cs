@@ -74,7 +74,7 @@ namespace Services
 
         public IEnumerable<ClaseDTO> ActividadesParaReservar(int alumnoId,int actividadId, DateTime fechaDesde, DateTime fechaTo)
         {
-            var clases = this.claseRepository.IncludeAll("Local", "Actividad", "ClasesAlumno")
+            var clases = this.claseRepository.IncludeAll("Local", "Actividad", "ClasesAlumno","Profesor")
                 .Where(c => c.ActividadId == actividadId
                  && c.Activo == true
                  && c.HorarioInicio >= fechaDesde
@@ -96,8 +96,8 @@ namespace Services
                 claseaux.HorarioInicio = updatedHoarioInicio;
                 claseaux.HorarioFin = updatedHoarioFin;
                 claseaux.CuposTotales = claseDTO.CuposTotales;
-                claseaux.CuposOtorgados = claseDTO.CuposOtorgados;
-                claseaux.ClasesAlumno = claseDTO.ClasesAlumno;
+                claseaux.CuposOtorgados = 0;
+                claseaux.ClasesAlumno = new List<AlumnoClaseDTO>();
                 claseaux.Profesor = claseDTO.Profesor;
                 claseaux.Local = claseDTO.Local;
                 var clase=this.Add(claseDTO.Actividad.Id, claseaux);
@@ -147,13 +147,14 @@ namespace Services
             var actividad = this.actividadRepository.IncludeAll("Clases").FirstOrDefault(a => a.Id == clase.ActividadId);
             actividad.Clases.Remove(clase);
             this.actividadRepository.Update(actividad);
-            claseDTOUpdate.CuposOtorgados = clase.CuposOtorgados;
+            claseDTOUpdate.CuposOtorgados = 0;
             claseDTOUpdate.ClasesAlumno = new List<AlumnoClaseDTO>();
-            var claseAux = this.Add(claseDTOUpdate.ActividadId, claseDTOUpdate);
+            var claseAux = this.Add(clase.ActividadId, claseDTOUpdate);
             claseAux.ClasesAlumno = new List<AlumnoClaseDTO>();
             foreach (AlumnoClase alumnoClase in clase.ClasesAlumno)
             {
-                this.alumnoService.agregarAlumnoAClase(alumnoClase.AlumnoId, claseAux.Id, alumnoClase.Tipo);
+                if(alumnoClase.Estado== AlumnoClase.estado.CONFIRMADA)
+                    this.alumnoService.agregarAlumnoAClase(alumnoClase.AlumnoId, claseAux.Id, alumnoClase.Tipo);
             }
             return claseAux;
         }

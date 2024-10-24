@@ -12,7 +12,10 @@ namespace Dto.Alumnos
         public AlumnoDTO Alumno { get; set; }
         public enum tipo { FIJO, PUNTUAL, WEB, RECUPERACION, ADMIN }
         public tipo Tipo { get; set; }
+        public enum estado { CONFIRMADA, PENDIENTE, CANCELADA }
+        public estado Estado { get; set; }
         public int ClaseId { get; set; }
         public ClaseDTO Clase { get; set; }
+        public DateTime? FechaCancelacion { get; set; } // Para saber cuándo fue cancelada
     }
 }

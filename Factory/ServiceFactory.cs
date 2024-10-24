@@ -6,6 +6,7 @@ using DataAccess.Repositories;
 using DataAccessInterface.Repositories;
 using Domain;
 using Domain.Alumnos;
+using Domain.Logs;
 using Mapper.Mappers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -50,6 +51,8 @@ namespace Factory
             services.AddScoped<IClaseRepository, ClaseRepository>();
             services.AddScoped<IRepository<ClaseFija>, Repository<ClaseFija>>();
             services.AddScoped<IRepository<Falta>, Repository<Falta>>();
+            services.AddScoped<IRepository<CupoPendiente>, Repository<CupoPendiente>>();
+            services.AddScoped<IRepository<Logs_AddAlumnoClase>, Repository<Logs_AddAlumnoClase>>();
         }
 
         private void AddServices()
@@ -67,6 +70,7 @@ namespace Factory
             services.AddScoped<IPlanService, PlanService>();
             services.AddScoped<IDashBoardService, DashBoardService>();
             services.AddScoped<IReportService, ReportService>();
+            services.AddScoped<ILogService, LogService>();
 
         }
 

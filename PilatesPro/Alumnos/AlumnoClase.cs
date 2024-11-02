@@ -14,7 +14,8 @@ namespace Domain.Alumnos
         public enum estado { CONFIRMADA, PENDIENTE, CANCELADA }
         public estado Estado { get; set; }
         public int ClaseId { get; set; }
-        public Clase Clase { get; set; } 
+        public Clase Clase { get; set; }
+        public DateTime? Fecha { get; set; }
         public DateTime? FechaCancelacion { get; set; } // Para saber cuándo fue cancelada
-}
+    }
 }

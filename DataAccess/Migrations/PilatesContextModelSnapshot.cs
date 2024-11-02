@@ -161,6 +161,9 @@ namespace DataAccess.Migrations
                     b.Property<int>("Estado")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("Fecha")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<DateTime?>("FechaCancelacion")
                         .HasColumnType("datetime(6)");
 

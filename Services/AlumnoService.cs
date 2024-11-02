@@ -497,16 +497,37 @@ namespace Services
                         {
                             AlumnoId = alumnoId,
                             Tipo = tipo,
-                            Estado=AlumnoClase.estado.CONFIRMADA
+                            Estado = AlumnoClase.estado.CONFIRMADA,
+                            Fecha = DateTime.Now,
                         };
                         clase.ClasesAlumno.Add(alumnoClase);
-                        clase.CuposOtorgados = clase.ClasesAlumno.Count(ac => ac.Estado == AlumnoClase.estado.CONFIRMADA);
-                        this.claseRepository.Update(clase);
-                        if (tipo == AlumnoClase.tipo.RECUPERACION)
+                        var auxCantAlumnos= clase.ClasesAlumno.Count(ac => ac.Estado == AlumnoClase.estado.CONFIRMADA);
+                        if (auxCantAlumnos <= clase.CuposTotales)
                         {
-                            this.usarCupoPendiente(alumnoId);
+                            clase.CuposOtorgados = auxCantAlumnos;
+                            this.claseRepository.Update(clase);
+                            if (tipo == AlumnoClase.tipo.RECUPERACION)
+                            {
+                                this.usarCupoPendiente(alumnoId);
+                            }
+                            return true; // Indicar que la operación fue exitosa
                         }
-                        return true; // Indicar que la operación fue exitosa
+                        else
+                        {
+                            // Opcional: registrar el error o realizar alguna acción
+                            Logs_AddAlumnoClase logsAlumnoClase = new Logs_AddAlumnoClase
+                            {
+                                AlumnoId = alumnoId,
+                                ClaseId = claseId,
+                                Fecha = DateTime.Now,
+                                Estado = Logs_AddAlumnoClase.estado.PENDIENTE,
+                                Descripcion = $"ERROR en cupos ({auxCantAlumnos})",
+                                Tipo = tipoLog
+                            };
+                            this.logService.AddAlumnoClase(logsAlumnoClase);
+                            return false;
+                        }
+                        
                     }
                     else
                     {
@@ -766,6 +787,19 @@ namespace Services
             }
 
             return cupoPendienteMasCercanoConFecha;
+        }
+
+        public IEnumerable<CupoPendienteDTO> CuposPendientes(int alumnoId)
+        {
+            Alumno alumno = this.alumnoRepository.IncludeAll("Cupos").FirstOrDefault(a => a.Id == alumnoId);
+            if (alumno != null)
+            {
+                return this.mapper.Map<IEnumerable<CupoPendienteDTO>>(alumno.Cupos.Where(c => c.Estado == CupoPendiente.estado.PENDIENTE && c.FechaExpiracion?.Date>=DateTime.Today.Date));
+            }
+            else
+            {
+                throw new Exception("El alumno no existe.");
+            }
         }
 
     }

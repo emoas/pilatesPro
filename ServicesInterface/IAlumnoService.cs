@@ -30,5 +30,6 @@ namespace ServicesInterface
         void UpdateClasesAlumno(int claseId);
         void AgregarFalta(int alumnoId, int claseId);
         int ObtenerFaltasDelMes(int alumnoId, DateTime fecha);
+        IEnumerable<CupoPendienteDTO> CuposPendientes(int alumnoId);
     }
 }

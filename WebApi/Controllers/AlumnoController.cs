@@ -170,6 +170,27 @@ namespace WebApi.Controllers
                 return StatusCode(500, "Algo salió mal.");
             }
         }
+        [HttpGet("cuposPendientes/{idAlumno}")]
+        public IActionResult GetCuposPendientes([FromRoute] int idAlumno)
+        {
+            try
+            {
+                var cupos = this.alumnoService.CuposPendientes(idAlumno);
+                return Ok(cupos);
+            }
+            catch (System.ArgumentException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (ValidationException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (System.Exception)
+            {
+                return StatusCode(500, "Algo salió mal.");
+            }
+        }
         [HttpGet("misreservas/{idAlumno}")]
         public IActionResult GetMisReservas([FromRoute] int idAlumno)
         {

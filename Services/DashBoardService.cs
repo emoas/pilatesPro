@@ -2,10 +2,13 @@
 using DataAccessInterface.Repositories;
 using Domain;
 using Domain.Alumnos;
+using Dto;
 using Dto.Clases;
 using Dto.DashBoard;
 using ServicesInterface;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Services
 {
@@ -27,6 +30,14 @@ namespace Services
             this.alumnoClaseRepository = alumnoClaseRepository;
             this.mapper = mapper;
         }
+
+        public IEnumerable<AgendaDTO> GetClasesLocalFecha(int idLocal, DateTime fecha)
+        {
+            var agendas = this.agendaService.GetPorFecha(idLocal,fecha)
+                                            .OrderBy(a => a.HorarioInicio); // Ordena por la propiedad de fecha;
+            return this.mapper.Map<IEnumerable<AgendaDTO>>(agendas);
+        }
+
         public DashBoardDTO GetHome()
         {
             DashBoardDTO dash = new DashBoardDTO();

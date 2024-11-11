@@ -38,6 +38,13 @@ namespace Services
             return this.mapper.Map<IEnumerable<AgendaDTO>>(agendas);
         }
 
+        public IEnumerable<ClaseDTO> GetClasesProfeFecha(int idProfe, DateTime fecha)
+        {
+            var clases = this.claseService.GetClasesPorFecha(fecha).Where(c => c.Profesor.Id == idProfe)
+                                            .OrderBy(c => c.HorarioInicio); // Ordena por la propiedad de fecha;
+            return this.mapper.Map<IEnumerable<ClaseDTO>>(clases);
+        }
+
         public DashBoardDTO GetHome()
         {
             DashBoardDTO dash = new DashBoardDTO();

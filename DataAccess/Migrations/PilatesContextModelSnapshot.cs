@@ -155,8 +155,14 @@ namespace DataAccess.Migrations
                     b.Property<int>("AlumnoId")
                         .HasColumnType("int");
 
+                    b.Property<bool>("Asistio")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<int>("ClaseId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Codigo")
+                        .HasColumnType("longtext");
 
                     b.Property<int>("Estado")
                         .HasColumnType("int");

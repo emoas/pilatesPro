@@ -29,7 +29,9 @@ namespace ServicesInterface
         bool agregarAlumnoAClase(int alumnoId, int claseId, AlumnoClase.tipo tipo);
         void UpdateClasesAlumno(int claseId);
         void AgregarFalta(int alumnoId, int claseId);
+        void QuitarFalta(int alumnoId, int claseId);
         int ObtenerFaltasDelMes(int alumnoId, DateTime fecha);
-        IEnumerable<CupoPendienteDTO> CuposPendientes(int alumnoId);
+        int CuposPendientes(int alumnoId);
+        IEnumerable<CupoPendienteDTO> CuposRecuperacion(int alumnoId);
     }
 }

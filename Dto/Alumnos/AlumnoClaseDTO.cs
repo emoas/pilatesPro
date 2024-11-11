@@ -18,5 +18,7 @@ namespace Dto.Alumnos
         public ClaseDTO Clase { get; set; }
         public DateTime? Fecha { get; set; }
         public DateTime? FechaCancelacion { get; set; } // Para saber cuándo fue cancelada
+        public string Codigo { get; private set; }
+        public bool Asistio { get; set; }
     }
 }

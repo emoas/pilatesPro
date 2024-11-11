@@ -67,6 +67,9 @@ namespace Services
             if (user == null)
             {
                 throw new Exception("No existe el usuario seleccionado.");
+            }else if (user.Password!=userUpdate.OldPassword)
+            {
+                throw new Exception("El password anterior no es correcto.");
             }
             user.Password = userUpdate.Password;
             user.ChangePassword = userUpdate.ChangePassword;

@@ -10,6 +10,7 @@ namespace Dto
         public string Name { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
+        public string OldPassword { get; set; }
         public enum rol { GOD, ADMIN, PROFE, RECEPCION, ALUMNO }
         public rol Rol { get; set; }
         public Guid Token { get; set; }

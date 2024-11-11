@@ -56,5 +56,26 @@ namespace WebApi.Controllers
                 return StatusCode(500, "Algo salió mal.");
             }
         }
+        [HttpGet("clasesProfeFecha/{idProfe}/{fecha}")]
+        public IActionResult GetClasesProfeFecha([FromRoute] int idProfe, DateTime fecha)
+        {
+            try
+            {
+                var clases = this.dashBoardService.GetClasesProfeFecha(idProfe, fecha);
+                return Ok(clases);
+            }
+            catch (System.ArgumentException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (ValidationException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (System.Exception exception)
+            {
+                return StatusCode(500, "Algo salió mal.");
+            }
+        }
     }
 }

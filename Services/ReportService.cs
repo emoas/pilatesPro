@@ -39,7 +39,13 @@ namespace Services
             // Iterar sobre las clases y extraer las reservas de los alumnos con el plan especificado
             foreach (var clase in reservas)
             {
-                foreach (var claseAlumno in clase.ClasesAlumno.Where(ca => ca.Alumno.PlanId == planId && ca.Estado== AlumnoClase.estado.CONFIRMADA))
+                var alumnosFiltrados = clase.ClasesAlumno
+    .Where(ca => ca.Alumno.PlanId == planId &&
+                 ((ca.Estado == AlumnoClase.estado.CONFIRMADA) ||
+                  (ca.Estado == AlumnoClase.estado.CANCELADA &&
+                   ca.FechaCancelacion >= clase.HorarioInicio.AddHours(-2))))
+    .ToList();
+                foreach (var claseAlumno in alumnosFiltrados)
                 {
                     var reserva = new ReservaPorPlanDTO
                     {

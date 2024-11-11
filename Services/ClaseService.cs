@@ -79,7 +79,7 @@ namespace Services
                  && c.Activo == true
                  && c.HorarioInicio >= fechaDesde
                  && c.HorarioFin <= fechaTo
-                 && !c.ClasesAlumno.Any(ca => ca.AlumnoId == alumnoId)) // Excluir clases donde el alumno ya está registrado
+                 && !c.ClasesAlumno.Any(ca => ca.AlumnoId == alumnoId && ca.Estado==AlumnoClase.estado.CONFIRMADA)) // Excluir clases donde el alumno ya está registrado
      .OrderBy(c => c.HorarioInicio);
             return this.mapper.Map<IEnumerable<ClaseDTO>>(clases);
         }
@@ -110,7 +110,11 @@ namespace Services
             var clases = this.alumnoClaseRepository.IncludeAll("Alumno").Where(ac => ac.ClaseId == claseId);
             return this.mapper.Map<IEnumerable<AlumnoClaseDTO>>(clases);
         }
-
+        public IEnumerable<ClaseDTO> GetClasesPorFecha(DateTime fecha)
+        {
+            var clases = this.claseRepository.IncludeAll("Profesor","Actividad","Local").Where(c => c.HorarioInicio.Date == fecha);
+            return this.mapper.Map<IEnumerable<ClaseDTO>>(clases);
+        }
         public IEnumerable<ClaseDTO> GetClasesActividad(int actividadId)
         {
             var actividadToUpdate = this.actividadRepository.IncludeAll("Clases").FirstOrDefault(a => a.Id == actividadId);
@@ -153,8 +157,18 @@ namespace Services
             claseAux.ClasesAlumno = new List<AlumnoClaseDTO>();
             foreach (AlumnoClase alumnoClase in clase.ClasesAlumno)
             {
-                if(alumnoClase.Estado== AlumnoClase.estado.CONFIRMADA)
-                    this.alumnoService.agregarAlumnoAClase(alumnoClase.AlumnoId, claseAux.Id, alumnoClase.Tipo);
+                if (alumnoClase.Estado == AlumnoClase.estado.CONFIRMADA)
+                {
+                    try
+                    {
+                        this.alumnoService.agregarAlumnoAClase(alumnoClase.AlumnoId, claseAux.Id, alumnoClase.Tipo);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Manejar la excepción, por ejemplo, registrarla
+                        Console.WriteLine($"Error: {ex.Message}");
+                    }
+                }
             }
             return claseAux;
         }

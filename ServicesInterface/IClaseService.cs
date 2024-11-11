@@ -18,6 +18,7 @@ namespace ServicesInterface
         IEnumerable<AlumnoClaseDTO> GetAlumnos(int claseId);
         void CopyTo(int localId,DateTime fechaDesde, DateTime fechaTo);
         IEnumerable<ClaseDTO> Between(int actividadId,DateTime fechaDesde, DateTime fechaTo);
+        IEnumerable<ClaseDTO> GetClasesPorFecha(DateTime fecha);
         IEnumerable<ClaseDTO> ActividadesParaReservar(int alumnoId,int actividadId, DateTime fechaDesde, DateTime fechaTo);
         
     }

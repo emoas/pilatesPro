@@ -8,6 +8,7 @@ namespace Dto
     public class ProfesorDTO:UserDTO
     {
         public string Apellido { get; set; }
+        public string Sobrenombre { get; set; }
         public string Cedula { get; set; }
         public string Direccion { get; set; }
         public string Celular { get; set; }

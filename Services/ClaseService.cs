@@ -76,9 +76,8 @@ namespace Services
         {
             var clases = this.claseRepository.IncludeAll("Local", "Actividad", "ClasesAlumno","Profesor")
                 .Where(c => c.ActividadId == actividadId
-                 && c.Activo == true
-                 && c.HorarioInicio >= fechaDesde
-                 && c.HorarioFin <= fechaTo
+                 && c.HorarioInicio.Date >= fechaDesde
+                 && c.HorarioFin.Date <= fechaTo
                  && !c.ClasesAlumno.Any(ca => ca.AlumnoId == alumnoId && ca.Estado==AlumnoClase.estado.CONFIRMADA)) // Excluir clases donde el alumno ya está registrado
      .OrderBy(c => c.HorarioInicio);
             return this.mapper.Map<IEnumerable<ClaseDTO>>(clases);
@@ -148,29 +147,29 @@ namespace Services
         public ClaseDTO Update(ClaseDTO claseDTOUpdate)
         {
             Clase clase = this.claseRepository.IncludeAll("ClasesAlumno", "Actividad", "Local", "Profesor", "Agenda").FirstOrDefault(c => c.Id == claseDTOUpdate.Id);
-            var actividad = this.actividadRepository.IncludeAll("Clases").FirstOrDefault(a => a.Id == clase.ActividadId);
-            actividad.Clases.Remove(clase);
-            this.actividadRepository.Update(actividad);
-            claseDTOUpdate.CuposOtorgados = 0;
-            claseDTOUpdate.ClasesAlumno = new List<AlumnoClaseDTO>();
-            var claseAux = this.Add(clase.ActividadId, claseDTOUpdate);
-            claseAux.ClasesAlumno = new List<AlumnoClaseDTO>();
-            foreach (AlumnoClase alumnoClase in clase.ClasesAlumno)
+            var profe = this.profeRepository.getProfesores().FirstOrDefault(p => p.Id == claseDTOUpdate.Profesor.Id);
+            clase.Profesor = profe;
+            clase.CuposTotales = claseDTOUpdate.CuposTotales;
+            this.claseRepository.Update(clase);
+            return this.mapper.Map<ClaseDTO>(clase);
+        }
+
+        public void Desactivate(int claseId)
+        {
+            Clase clase = (Clase)this.claseRepository.List().FirstOrDefault(c => c.Id == claseId);
+            if (clase == null)
             {
-                if (alumnoClase.Estado == AlumnoClase.estado.CONFIRMADA)
-                {
-                    try
-                    {
-                        this.alumnoService.agregarAlumnoAClase(alumnoClase.AlumnoId, claseAux.Id, alumnoClase.Tipo);
-                    }
-                    catch (Exception ex)
-                    {
-                        // Manejar la excepción, por ejemplo, registrarla
-                        Console.WriteLine($"Error: {ex.Message}");
-                    }
-                }
+                throw new Exception("No existe la clase seleccionada.");
             }
-            return claseAux;
+            if (clase.Activo)
+            {
+                clase.Activo = false;
+            }
+            else
+            {
+                clase.Activo = true;
+            }
+            this.claseRepository.Update(clase);
         }
     }
 }

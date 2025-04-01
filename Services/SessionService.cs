@@ -38,10 +38,10 @@ namespace Services
             this.sessionValidator.ValidateLogin(userLoginDto);
             var user = this.SearchUser(userLoginDto);
             this.sessionValidator.ValidateExistingUser(user);
-
+            if (user!=null &&user.Rol==User.rol.ALUMNO)
+                this.sessionValidator.ValidateActiveUser(user);         
             return user.Token;
         }
-
         private User SearchUser(UserLoginDTO userLoginDto)
         {
             var user = this.userRepository.List().FirstOrDefault(u =>

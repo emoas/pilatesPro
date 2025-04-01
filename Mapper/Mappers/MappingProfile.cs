@@ -48,6 +48,8 @@ namespace Mapper.Mappers
             CreateMap<DashBoardDTO, DashBoard>();
             CreateMap<CupoPendiente, CupoPendienteDTO>();
             CreateMap<CupoPendienteDTO, CupoPendiente>();
+            CreateMap<LicenciaAlumno, LicenciaAlumnoDTO>();
+            CreateMap<LicenciaAlumnoDTO, LicenciaAlumno>();
         }
     }
 }

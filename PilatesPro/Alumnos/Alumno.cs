@@ -30,7 +30,7 @@ namespace Domain
         public int CuposPendientes { get; set; }
         public ICollection<Falta> Faltas { get; set; } = new List<Falta>();
         public ICollection<CupoPendiente> Cupos { get; set; } = new List<CupoPendiente>();
-
+        public ICollection<LicenciaAlumno> Licencia { get; set; } = new List<LicenciaAlumno>();
         public Alumno()
         {
             base.Rol = rol.ALUMNO;

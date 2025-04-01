@@ -77,5 +77,26 @@ namespace WebApi.Controllers
                 return StatusCode(500, "Algo salió mal.");
             }
         }
+        [HttpGet("paseLibre/2faltas")]
+        public IActionResult GetPaseLibre2Faltas([FromRoute] int planId, DateTime desde, DateTime hasta)
+        {
+            try
+            {
+                var reservas = this.dashBoardService.GetPaseLibre2Faltas();
+                return Ok(reservas);
+            }
+            catch (System.ArgumentException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (ValidationException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (System.Exception)
+            {
+                return StatusCode(500, "Algo salió mal.");
+            }
+        }
     }
 }

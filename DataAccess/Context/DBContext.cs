@@ -21,6 +21,7 @@ namespace DataAccess.Context
         public DbSet<Falta> Faltas { get; set; }
         public DbSet<Logs_AddAlumnoClase> Logs_AlumnoClase { get; set; }
         public DbSet<CupoPendiente> CupoPendiente { get; set; }
+        public DbSet<LicenciaAlumno> LicenciaAlumno { get; set; }
         public PilatesContext() { }
         public PilatesContext(DbContextOptions options) : base(options) { }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

@@ -15,7 +15,7 @@ namespace ServicesInterface
         AlumnoDTO Update(AlumnoDTO alumnoDTOUpdate);
         void Desactivate(int alumnoId);
         void RemoveAlumnoClase(int alumnoId, int claseId);
-        void CancelReservaManual(int alumnoId, int claseId);
+        void CancelReservaManual(int idAlumnoClase, bool addFalta);
         void CancelReservaWeb(int alumnoId, int claseId);
         void addClasesFijasAlumno(int alumnoId, ClaseFijaDTO claseFija);
         void RemoveClaseFija(int id);
@@ -28,10 +28,14 @@ namespace ServicesInterface
         IEnumerable<AlumnoClaseDTO> GetReservasPeriodo(int alumnoId, DateTime desde, DateTime hasta);
         bool agregarAlumnoAClase(int alumnoId, int claseId, AlumnoClase.tipo tipo);
         void UpdateClasesAlumno(int claseId);
-        void AgregarFalta(int alumnoId, int claseId);
-        void QuitarFalta(int alumnoId, int claseId);
+        void AgregarFalta(int alumnoId, int claseId, AlumnoClase.estado estado = AlumnoClase.estado.FALTA);
+        void QuitarFalta(int idAlumnoClase);
         int ObtenerFaltasDelMes(int alumnoId, DateTime fecha);
         int CuposPendientes(int alumnoId);
         IEnumerable<CupoPendienteDTO> CuposRecuperacion(int alumnoId);
+        void AgregarLicencia(LicenciaAlumnoDTO licenciaAlumno);
+        void EliminarLicencia(int idLicencia);
+        AlumnoDTO GetLicenciaAlumno(int alumnoId);
+        bool EstaDeLicencia(int idAlumno, DateTime fecha);
     }
 }

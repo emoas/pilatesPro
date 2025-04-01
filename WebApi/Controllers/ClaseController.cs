@@ -145,6 +145,28 @@ namespace WebApi.Controllers
                 return StatusCode(500, "Algo salió mal.(" + exception.Message + ")");
             }
         }
+        [HttpPut("desactivate/{claseId}")]
+        public IActionResult Desactivate([FromRoute] int claseId)
+        {
+            try
+            {
+                this.claseService.Desactivate(claseId);
+                return Ok();
+            }
+            catch (System.ArgumentException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (ValidationException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (System.Exception exception)
+            {
+                return StatusCode(500, exception.Message);
+            }
+        }
+
         [HttpPut]
         public IActionResult Put([FromBody] ClaseDTO claseDTOUpdate)
         {

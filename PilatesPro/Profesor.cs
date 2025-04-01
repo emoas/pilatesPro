@@ -6,6 +6,7 @@ namespace Domain
     public class Profesor:User
     {
         public string Apellido { get; set; }
+        public string Sobrenombre { get; set; }
         public string Cedula { get; set; }
         public string Direccion { get; set; }
         public string Celular { get; set; }
@@ -30,10 +31,11 @@ namespace Domain
             this.Password = "primera";
             this.Token = Guid.NewGuid();
         }
-        public Profesor(string name, string apellido, string email, string cedula,string direccion, string celular,string ciudad, string movilEmergencia,string contactoEmergencia,string telefonoContacto,List<Patologia> patologias, bool activo, DateTime fechaNacimiento, List<Actividad> actividades, List<Local> locales)
+        public Profesor(string name, string apellido, string sobrenombre, string email, string cedula,string direccion, string celular,string ciudad, string movilEmergencia,string contactoEmergencia,string telefonoContacto,List<Patologia> patologias, bool activo, DateTime fechaNacimiento, List<Actividad> actividades, List<Local> locales)
         {
             base.Name = name;
             this.Apellido = apellido;
+            this.Sobrenombre = Sobrenombre;
             this.Email = email;
             this.Password = "primera";
             this.Token = Guid.NewGuid();

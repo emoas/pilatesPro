@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Dto.Alumnos;
+using System;
 using System.Collections.Generic;
 
 namespace Dto
@@ -26,6 +27,7 @@ namespace Dto
         public ICollection<ClaseFijaDTO> ClasesFijas { get; set; }
         public ICollection<ClaseDTO> Clases { get; set; }
         public int CuposPendientes { get; set; }
+        public ICollection<LicenciaAlumnoDTO> Licencia { get; set; }
         public AlumnoDTO()
         {
         }

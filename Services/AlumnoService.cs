@@ -22,17 +22,19 @@ namespace Services
         private IRepository<Clase> claseRepository;
         private IRepository<ClaseFija> claseFijaRepository;
         private IRepository<Falta> faltaRepository;
+        private IRepository<LicenciaAlumno> licenciaRepository;
         private IAlumnoClaseRepository alumnoClaseRepository;
         private IAgendaService agendaService;
         private ILogService logService;
         private IMapper mapper;
-        public AlumnoService(IAlumnoClaseRepository alumnoClaseRepository, ILogService logService,IAgendaService agendaService,IMapper mapper, IAlumnoRepository alumnoRepository, IRepository<ClaseFija> claseFijaRepository, IRepository<Plan> planRepository, IRepository<Patologia> patologiaRepository, IRepository<Clase> claseRepository, IRepository<Falta> faltaRepository)
+        public AlumnoService(IAlumnoClaseRepository alumnoClaseRepository, ILogService logService,IAgendaService agendaService,IMapper mapper, IAlumnoRepository alumnoRepository, IRepository<ClaseFija> claseFijaRepository, IRepository<Plan> planRepository, IRepository<Patologia> patologiaRepository, IRepository<Clase> claseRepository, IRepository<Falta> faltaRepository, IRepository<LicenciaAlumno> licenciaRepository)
         {
             this.alumnoRepository = alumnoRepository;
             this.patologiaRepository = patologiaRepository;
             this.planRepository = planRepository;
             this.claseRepository = claseRepository;
             this.faltaRepository = faltaRepository;
+            this.licenciaRepository = licenciaRepository;
             this.claseFijaRepository = claseFijaRepository;
             this.alumnoClaseRepository = alumnoClaseRepository;
             this.mapper = mapper;
@@ -345,9 +347,36 @@ namespace Services
             }
             this.alumnoClaseRepository.Update(alumnoClaseAEliminar);
         }
-        public void CancelReservaManual(int alumnoId, int claseId)
+        private void CancelLicenciaAlumnoClase(int alumnoId, int claseId)
         {
             Clase claseUpdate = this.claseRepository.IncludeAll("ClasesAlumno").FirstOrDefault(c => c.Id == claseId);
+
+            var alumnoClaseACancelar = claseUpdate.ClasesAlumno.FirstOrDefault(ac => ac.AlumnoId == alumnoId);
+
+            if (alumnoClaseACancelar != null)
+            {
+                alumnoClaseACancelar.Estado = AlumnoClase.estado.CANCELADALICENCIA;
+                alumnoClaseACancelar.FechaCancelacion = DateTime.Now;
+                alumnoClaseACancelar.Asistio = false;
+                if (claseUpdate.CuposOtorgados > 0)
+                {
+                    claseUpdate.CuposOtorgados--;
+                    this.claseRepository.Update(claseUpdate);
+                }
+            }
+            this.alumnoClaseRepository.Update(alumnoClaseACancelar);
+        }
+        private DateTime GetFechaExpiracion(DateTime clasedDate)
+        {
+            return new DateTime(clasedDate.Year, clasedDate.Month, 1) // Primer día del mes
+                   .AddMonths(1) // Avanza al siguiente mes
+                   .AddDays(6);  // Agrega 6 días para llegar al día 7
+        }
+        public void CancelReservaManual(int idAlumnoClase, bool addFalta)
+        {
+            AlumnoClase alumnoClaseAUpdate = this.alumnoClaseRepository.IncludeAll().FirstOrDefault(a => a.Id == idAlumnoClase);
+            Clase claseUpdate = this.claseRepository.IncludeAll().FirstOrDefault(c => c.Id == alumnoClaseAUpdate.ClaseId);
+            Alumno alumno = this.alumnoRepository.IncludeAll().FirstOrDefault(a => a.Id == alumnoClaseAUpdate.AlumnoId);
             // Hacer una copia superficial de los valores actuales de claseUpdate
             Clase aux = new Clase
             {
@@ -355,14 +384,11 @@ namespace Services
                 CuposOtorgados = claseUpdate.CuposOtorgados,
                 // Aquí puedes copiar otras propiedades que necesites rastrear
             };
-            var alumnoClaseAUpdate = claseUpdate.ClasesAlumno.FirstOrDefault(ac => ac.AlumnoId == alumnoId && ac.Estado!=AlumnoClase.estado.CANCELADA);
+            //var alumnoClaseAUpdate = claseUpdate.ClasesAlumno.FirstOrDefault(ac => ac.AlumnoId == alumnoId && ac.Estado!=AlumnoClase.estado.CANCELADA);
             if (alumnoClaseAUpdate != null)
             {
-                alumnoClaseAUpdate.Estado = AlumnoClase.estado.CANCELADA;
-                alumnoClaseAUpdate.FechaCancelacion = DateTime.Now;
-                alumnoClaseAUpdate.Asistio = false;
                 // Actualizar los cupos otorgados solo si es mayor a cero para evitar que queden negativos
-                if (claseUpdate.CuposOtorgados > 0)
+                if (claseUpdate.CuposOtorgados > 0 && alumnoClaseAUpdate.Estado== AlumnoClase.estado.CONFIRMADA)
                 {
                     claseUpdate.CuposOtorgados--;
                     this.claseRepository.Update(claseUpdate);
@@ -370,23 +396,32 @@ namespace Services
                     // Opcional: registrar el error o realizar alguna acción
                     Logs_AddAlumnoClase logsAlumnoClase = new Logs_AddAlumnoClase
                     {
-                        AlumnoId = alumnoId,
-                        ClaseId = claseId,
+                        AlumnoId = alumno.Id,
+                        ClaseId = claseUpdate.Id,
                         Fecha = DateTime.Now,
                         Estado = Logs_AddAlumnoClase.estado.PENDIENTE,
                         Descripcion = $"El Admin cancelo la reserva (Cupos antes:{aux.CuposOtorgados} cupos despues: {claseUpdate.CuposOtorgados})",
                         Tipo = Logs_AddAlumnoClase.tipo.CANCELACIONADMIN
                     };
                     this.logService.AddAlumnoClase(logsAlumnoClase);
+                    if (addFalta)
+                    {
+                        alumnoClaseAUpdate.Estado = AlumnoClase.estado.CANCELADAFALTA;
+                        this.AgregarFalta(alumno.Id, claseUpdate.Id, AlumnoClase.estado.CANCELADAFALTA);
+                    }
+                    else
+                        alumnoClaseAUpdate.Estado = AlumnoClase.estado.CANCELADA;
+                    alumnoClaseAUpdate.FechaCancelacion = DateTime.Now;   
                 }
+                alumnoClaseAUpdate.Asistio = false;
                 this.alumnoClaseRepository.Update(alumnoClaseAUpdate);
                 //Agrego el cupo pendiente
-                if (alumnoClaseAUpdate.Tipo == AlumnoClase.tipo.FIJO)
+                if (!addFalta && alumno.PlanId != 39 && (alumnoClaseAUpdate.Tipo == AlumnoClase.tipo.FIJO || alumnoClaseAUpdate.Tipo == AlumnoClase.tipo.PUNTUAL || alumnoClaseAUpdate.Tipo == AlumnoClase.tipo.WEB))
                 {
                     CupoPendiente cupoPendiente = new CupoPendiente
                     {
-                        AlumnoId = alumnoId,
-                        FechaExpiracion = DateTime.Now.AddMonths(1),
+                        AlumnoId = alumno.Id,
+                        FechaExpiracion = GetFechaExpiracion(claseUpdate.HorarioInicio),
                         Tipo = CupoPendiente.tipo.CANCELACIONADMIN,
                     };
                     this.AgregarCupoPendiente(cupoPendiente);
@@ -399,9 +434,9 @@ namespace Services
             Clase claseUpdate = this.claseRepository.IncludeAll("ClasesAlumno").FirstOrDefault(c => c.Id == claseId);
             Alumno alumno = this.alumnoRepository.IncludeAll().FirstOrDefault(a => a.Id == alumnoId);
 
-            var alumnoClaseAUpdate = claseUpdate.ClasesAlumno.FirstOrDefault(ac => ac.AlumnoId == alumnoId);
+            var alumnoClaseAUpdate = claseUpdate.ClasesAlumno.FirstOrDefault(ac => ac.AlumnoId == alumnoId && ac.Estado== AlumnoClase.estado.CONFIRMADA);
 
-            if (alumnoClaseAUpdate != null)
+            if (alumnoClaseAUpdate != null && alumnoClaseAUpdate.Estado==AlumnoClase.estado.CONFIRMADA)
             {
                 //claseUpdate.ClasesAlumno.Remove(alumnoClaseAEliminar);
                 alumnoClaseAUpdate.Estado = AlumnoClase.estado.CANCELADA;
@@ -411,19 +446,19 @@ namespace Services
                 this.alumnoClaseRepository.Update(alumnoClaseAUpdate);
                 DateTime fechaActual = DateTime.Now; // Fecha y hora actual
                 DateTime limiteCancelacion = claseUpdate.HorarioInicio.AddHours(-2);
-                if (alumnoClaseAUpdate.Tipo == AlumnoClase.tipo.FIJO && fechaActual <= limiteCancelacion)
+                if (alumno.PlanId != 39 && fechaActual <= limiteCancelacion && (alumnoClaseAUpdate.Tipo == AlumnoClase.tipo.FIJO || alumnoClaseAUpdate.Tipo == AlumnoClase.tipo.PUNTUAL || alumnoClaseAUpdate.Tipo == AlumnoClase.tipo.WEB) )
                 { 
                     CupoPendiente cupoPendiente = new CupoPendiente
                     {
                         AlumnoId = alumnoId,
-                        FechaExpiracion = DateTime.Now.AddMonths(1),
+                        FechaExpiracion = GetFechaExpiracion(claseUpdate.HorarioInicio),
                         Tipo = CupoPendiente.tipo.CANCELACIONWEB,
                     };
                     this.AgregarCupoPendiente(cupoPendiente);
                 }
                 else if (alumno.PlanId == 39 && fechaActual >= limiteCancelacion)//Alumno Pase Libre
                 {
-                    this.AgregarFalta(alumnoId, claseId);
+                    this.AgregarFalta(alumnoId, claseId, AlumnoClase.estado.CANCELADAFALTA);
                 }
             }
             // Registrar un mensaje o lanzar una excepción específica si es necesario
@@ -443,17 +478,37 @@ namespace Services
 
         private void QuitarAlumnoTodasLasClases(int alumnoId)
         {
-            var alumnosClases = this.alumnoClaseRepository.IncludeAll().Where(ac => ac.AlumnoId == alumnoId).ToList();
+            var alumnosClases = this.alumnoClaseRepository.IncludeAll("Clase").Where(
+                ac => ac.AlumnoId == alumnoId
+                && ac.Clase.HorarioInicio >= DateTime.Now.Date)
+                .ToList();
             foreach (AlumnoClase alumnoClase in alumnosClases)
             {
                 this.RemoveAlumnoClase(alumnoId, alumnoClase.ClaseId);
             }
         }
+        private void CancelarAlumnoClasesPeriodo(int alumnoId, DateTime fechaDesde, DateTime fechaHasta)
+        {
+            var alumnosClases = this.alumnoClaseRepository.IncludeAll("Clase").Where(
+                ac => ac.AlumnoId == alumnoId
+                && ac.Clase.HorarioInicio.Date >= fechaDesde.Date
+                && ac.Clase.HorarioInicio.Date <= fechaHasta.Date)
+                .ToList();
+            foreach (AlumnoClase alumnoClase in alumnosClases)
+            {
+                this.CancelLicenciaAlumnoClase(alumnoId, alumnoClase.ClaseId);
+            }
+        }
         private void CancelarTodasLasClases(int alumnoId)
         {
             var startOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-            var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
-            var alumnosClases = this.alumnoClaseRepository.IncludeAll().Where(ac => ac.AlumnoId == alumnoId && ac.Fecha>=DateTime.Now.Date && ac.Fecha<= endOfMonth).ToList();
+            var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1).Date.AddHours(23).AddMinutes(59).AddSeconds(59);
+            var alumnosClases = this.alumnoClaseRepository.IncludeAll("Clase").Where(
+                ac => ac.AlumnoId == alumnoId 
+                && ac.Estado==AlumnoClase.estado.CONFIRMADA
+                && ac.Clase.HorarioInicio>=DateTime.Now.Date 
+                && ac.Clase.HorarioInicio<= endOfMonth)
+                .ToList();
             foreach (AlumnoClase alumnoClase in alumnosClases)
             {
                 this.CancelAlumnoClase(alumnoId, alumnoClase.ClaseId);
@@ -555,7 +610,7 @@ namespace Services
                             Fecha = DateTime.Now,
                         };
                         var auxCantAlumnos= clase.ClasesAlumno.Count(ac => ac.Estado == AlumnoClase.estado.CONFIRMADA);
-                        if (auxCantAlumnos < clase.CuposTotales)
+                        if (tipo == AlumnoClase.tipo.ADMIN || auxCantAlumnos < clase.CuposTotales)
                         {
                             clase.ClasesAlumno.Add(alumnoClase);
                             clase.CuposOtorgados = auxCantAlumnos+1;
@@ -634,18 +689,31 @@ namespace Services
             switch (alumno.Plan.Tipo)
             {
                 case Plan.tipo.SEMANAL:
-                    // Verificar si tiene cupos semanales o ilimitados
-                    bool puedeReservarSemanal = this.GetMisReservasSemana(alumno.Id, clase.HorarioInicio) < alumno.Plan.VecesxSemana || alumno.Plan.VecesxSemana == 0;
+                    // Verificar si el alumno está de licencia
+                    bool estaDeLicencia = EstaDeLicencia(alumno.Id, clase.HorarioInicio);
 
-                    if (cuposDisponibles && puedeReservarSemanal && actividadEnPlan && tipo != AlumnoClase.tipo.RECUPERACION)
+                    // Si el alumno está de licencia y el tipo NO es WEB ni RECUPERACION, no puede reservar
+                    if (estaDeLicencia && tipo != AlumnoClase.tipo.WEB && tipo != AlumnoClase.tipo.RECUPERACION)
+                    {
+                        puede = false;
+                        break; // Salimos del case sin evaluar otras condiciones
+                    }
+
+                    // Verificar si tiene cupos semanales o ilimitados (solo si no está de licencia)
+                    bool puedeReservarSemanal = (this.GetMisReservasSemana(alumno.Id, clase.HorarioInicio) < alumno.Plan.VecesxSemana || alumno.Plan.VecesxSemana == 0);
+
+                    if (!estaDeLicencia && cuposDisponibles && puedeReservarSemanal && actividadEnPlan && tipo != AlumnoClase.tipo.RECUPERACION)
                     {
                         puede = true;
                     }
-                    // Actividad libre
-                    if (cuposDisponibles && alumno.Plan.ActividadLibreId == clase.ActividadId)
+
+                    // Actividad libre (solo si no está de licencia)
+                    if (!estaDeLicencia && cuposDisponibles && alumno.Plan.ActividadLibreId == clase.ActividadId)
                         puede = true;
-                    //Clase de recuperacion
-                    if (cuposDisponibles && actividadEnPlan && alumno.CuposPendientes>0 && (tipo== AlumnoClase.tipo.WEB || tipo == AlumnoClase.tipo.RECUPERACION)) {
+
+                    // Clase de recuperación (permite reservar incluso si está de licencia)
+                    if (cuposDisponibles && actividadEnPlan && alumno.CuposPendientes > 0 && (tipo == AlumnoClase.tipo.WEB || tipo == AlumnoClase.tipo.RECUPERACION))
+                    {
                         puede = true;
                         tipo = AlumnoClase.tipo.RECUPERACION;
                     }
@@ -679,14 +747,18 @@ namespace Services
             DateTime startOfWeek = today.AddDays(-daysUntilMonday);
 
             // Obtener el sábado de la siguiente semana (lunes + 12 días)
-            DateTime endOfNextWeek = startOfWeek.AddDays(12); // Lunes + 12 días = siguiente sábado
+            DateTime endOfNextWeek = startOfWeek.AddDays(12).Date.AddHours(23).AddMinutes(59).AddSeconds(59); // Lunes + 12 días = siguiente sábado
 
             // Filtrar las clases entre el lunes de la semana actual y el sábado de la siguiente semana
             var alumnoClases = this.alumnoClaseRepository.IncludeAllAnidado("Clase", "Clase.Actividad", "Clase.Local", "Alumno")
                                     .Where(ac => ac.AlumnoId == idAlumno
                                             && ac.Clase.HorarioInicio >= startOfMonth
                                             && ac.Clase.HorarioInicio <= endOfNextWeek
-                                             && (ac.Estado == AlumnoClase.estado.CONFIRMADA || ac.Estado == AlumnoClase.estado.CANCELADA))
+                                             && (ac.Estado == AlumnoClase.estado.CONFIRMADA || 
+                                             ac.Estado == AlumnoClase.estado.CANCELADA ||
+                                             ac.Estado == AlumnoClase.estado.CANCELADAFALTA ||
+                                             ac.Estado == AlumnoClase.estado.CANCELADALICENCIA ||
+                                             ac.Estado == AlumnoClase.estado.FALTA))
                                     .OrderBy(ac => ac.Clase.HorarioInicio);
 
             return this.mapper.Map<IEnumerable<AlumnoClaseDTO>>(alumnoClases);
@@ -701,7 +773,9 @@ namespace Services
                 .Where(ac => ac.AlumnoId == alumnoId &&
                              ac.Clase.HorarioInicio >= dayStart &&
                              ac.Clase.HorarioInicio <= dayEnd && // Comparar dentro del mismo día
-                             ac.Estado == AlumnoClase.estado.CONFIRMADA)
+                             (ac.Estado == AlumnoClase.estado.CONFIRMADA ||
+                             ac.Estado == AlumnoClase.estado.CANCELADAFALTA ||
+                             ac.Estado == AlumnoClase.estado.FALTA))
                 .Count();
 
             return count > 0; // Devuelve true si hay al menos una reserva
@@ -729,13 +803,17 @@ namespace Services
 
             // Calcular el último día del mes sumando un mes y restando un día
             DateTime endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
+            // Ajustar la hora a las 23:59:59
+            endOfMonth = endOfMonth.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
 
             // Contar las reservas dentro del rango del mes
             var count = this.alumnoClaseRepository.IncludeAll("Clase")
                 .Where(ac => ac.AlumnoId == alumnoId &&
                              ac.Clase.HorarioInicio >= startOfMonth &&
-                             ac.Clase.HorarioFin <= endOfMonth
-                             && ac.Estado == AlumnoClase.estado.CONFIRMADA)
+                             ac.Clase.HorarioFin <= endOfMonth &&
+                             (ac.Estado == AlumnoClase.estado.CONFIRMADA ||
+                             ac.Estado == AlumnoClase.estado.CANCELADAFALTA ||
+                             ac.Estado == AlumnoClase.estado.FALTA))
                 .Count();
 
             return count;
@@ -752,7 +830,7 @@ namespace Services
             return this.mapper.Map<IEnumerable<AlumnoClaseDTO>>(alumnoClases);
         }
 
-        public void AgregarFalta(int alumnoId, int claseId)
+        public void AgregarFalta(int alumnoId, int claseId, AlumnoClase.estado estado= AlumnoClase.estado.FALTA)
         {
             Alumno alumno = this.alumnoRepository.IncludeAll("Faltas","Plan").FirstOrDefault(a => a.Id == alumnoId);
             if (alumno != null)
@@ -780,28 +858,33 @@ namespace Services
             if (alumnoClaseAUpdate != null)
             {
                 alumnoClaseAUpdate.Asistio = false;
+                alumnoClaseAUpdate.Estado = estado;
                 this.alumnoClaseRepository.Update(alumnoClaseAUpdate);
             }
 
         }
 
-        public void QuitarFalta(int alumnoId, int claseId)
+        public void QuitarFalta(int idAlumnoClase)
         {
-            Alumno alumno = this.alumnoRepository.IncludeAll("Faltas").FirstOrDefault(a => a.Id == alumnoId);
+            var alumnoClaseAUpdate = this.alumnoClaseRepository.GetAll().FirstOrDefault(ac => ac.Id == idAlumnoClase);
+            Clase claseUpdate = this.claseRepository.IncludeAll().FirstOrDefault(c => c.Id == alumnoClaseAUpdate.ClaseId);
+            Alumno alumno = this.alumnoRepository.IncludeAll("Faltas").FirstOrDefault(a => a.Id == alumnoClaseAUpdate.AlumnoId);
             if (alumno != null)
             {
 
-                var falta=alumno.Faltas.FirstOrDefault(f => f.ClaseId == claseId);
+                var falta=alumno.Faltas.FirstOrDefault(f => f.ClaseId == alumnoClaseAUpdate.ClaseId);
                 alumno.Faltas.Remove(falta);
                 this.alumnoRepository.Update(alumno);
             }
-            var alumnoClaseAUpdate = this.alumnoClaseRepository.GetAll().FirstOrDefault(ac => ac.AlumnoId == alumnoId && ac.ClaseId == claseId);
+            
             if (alumnoClaseAUpdate != null)
             {
                 alumnoClaseAUpdate.Asistio = true;
+                alumnoClaseAUpdate.Estado = AlumnoClase.estado.CONFIRMADA;
+                claseUpdate.CuposOtorgados++;
+                this.claseRepository.Update(claseUpdate);
                 this.alumnoClaseRepository.Update(alumnoClaseAUpdate);
             }
-
         }
 
         public int ObtenerFaltasDelMes(int alumnoId, DateTime fecha)
@@ -903,6 +986,54 @@ namespace Services
             {
                 throw new Exception("El alumno no existe.");
             }
+        }
+        public void AgregarLicencia(LicenciaAlumnoDTO licenciaAlumno)
+        {
+            Alumno alumno = this.alumnoRepository.IncludeAll().FirstOrDefault(a => a.Id == licenciaAlumno.AlumnoId);
+            if (alumno != null)
+            {
+                // Agregar la nueva falta
+                var licencia = new LicenciaAlumno
+                {
+                    FechaIngreso = DateTime.Now,
+                    FechaDesde = licenciaAlumno.FechaDesde,
+                    FechaHasta = licenciaAlumno.FechaHasta,
+                    AlumnoId = licenciaAlumno.AlumnoId,
+                    Tipo = (LicenciaAlumno.tipo)licenciaAlumno.Tipo,
+                    CantidadDias = licenciaAlumno.CantidadDias,
+                    Observaciones = licenciaAlumno.Observaciones,
+                };
+                alumno.Licencia.Add(licencia);
+                this.alumnoRepository.Update(alumno);
+                //quitamos al alumno de todas las clases del período
+                this.CancelarAlumnoClasesPeriodo(licenciaAlumno.AlumnoId, licenciaAlumno.FechaDesde, licenciaAlumno.FechaHasta);
+            }
+        }
+        public void EliminarLicencia(int idLicencia)
+        {
+            LicenciaAlumno licencia = this.licenciaRepository.List().FirstOrDefault(l => l.Id == idLicencia);
+            if (licencia != null)
+            {
+                    this.licenciaRepository.Delete(licencia);
+            }
+        }
+        public AlumnoDTO GetLicenciaAlumno(int alumnoId)
+        {
+            var alumno = this.alumnoRepository.IncludeAll("Licencia").FirstOrDefault(a => a.Id == alumnoId);
+            return this.mapper.Map<AlumnoDTO>(alumno);
+        }
+        public bool EstaDeLicencia(int alumnoId, DateTime fechaConsulta)
+        {
+            var alumno = this.alumnoRepository.IncludeAll("Licencia") // Asegúrate de que el nombre es correcto
+                                              .FirstOrDefault(a => a.Id == alumnoId);
+
+            if (alumno == null || alumno.Licencia == null)
+                return false; // Si no existe el alumno o no tiene licencias, no está de licencia
+
+            return alumno.Licencia.Any(licencia =>
+                fechaConsulta.Date >= licencia.FechaDesde.Date &&
+                fechaConsulta.Date <= licencia.FechaHasta.Date
+            );
         }
 
     }

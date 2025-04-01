@@ -33,6 +33,7 @@ namespace Services
             {
                 Name = profeDTO.Name,
                 Apellido = profeDTO.Apellido,
+                Sobrenombre=profeDTO.Sobrenombre,
                 Email = profeDTO.Email,
                 Cedula = profeDTO.Cedula,
                 Direccion = profeDTO.Direccion,
@@ -92,7 +93,7 @@ namespace Services
 
         public IEnumerable<ProfesorDTO> GetAll()
         {
-            var profesores=profeRepository.getProfesores()
+            var profesores=profeRepository.getProfesores().Where(p => p.Rol==User.rol.PROFE)
                                 .OrderByDescending(p => p.Activo)
                                 .ToList();
             return this.mapper.Map<IEnumerable<ProfesorDTO>>(profesores);
@@ -179,6 +180,7 @@ namespace Services
 
             profeToUpdate.Name = profesorDTOUpdate.Name;
             profeToUpdate.Apellido = profesorDTOUpdate.Apellido;
+            profeToUpdate.Sobrenombre = profesorDTOUpdate.Sobrenombre;
             profeToUpdate.Cedula = profesorDTOUpdate.Cedula;
             profeToUpdate.Direccion = profesorDTOUpdate.Direccion;
             profeToUpdate.Celular = profesorDTOUpdate.Celular;

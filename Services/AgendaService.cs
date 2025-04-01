@@ -39,7 +39,9 @@ namespace Services
 
         public IEnumerable<AgendaDTO> GetLocalId(int localId)
         {
-            var agendas = this.agendaRepository.IncludeAll().Where(a => a.LocalId == localId);
+            // Calcular la fecha límite (hace 2 meses desde hoy)
+            DateTime fechaLimite = DateTime.Now.AddMonths(-2);
+            var agendas = this.agendaRepository.IncludeAll().Where(a => a.LocalId == localId && a.HorarioInicio.Date>= fechaLimite);
             return this.mapper.Map<IEnumerable<AgendaDTO>>(agendas);
         }
 

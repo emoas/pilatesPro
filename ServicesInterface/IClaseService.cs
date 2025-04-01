@@ -20,6 +20,6 @@ namespace ServicesInterface
         IEnumerable<ClaseDTO> Between(int actividadId,DateTime fechaDesde, DateTime fechaTo);
         IEnumerable<ClaseDTO> GetClasesPorFecha(DateTime fecha);
         IEnumerable<ClaseDTO> ActividadesParaReservar(int alumnoId,int actividadId, DateTime fechaDesde, DateTime fechaTo);
-        
+        void Desactivate(int claseId);
     }
 }

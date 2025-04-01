@@ -15,19 +15,21 @@ namespace Services
     public class DashBoardService : IDashBoardService
     {
         private IActividadRepository actividadRepository;
+        private IAlumnoRepository alumnoRepository;
         private IClaseService claseService;
         private IRepository<AlumnoClase> alumnoClaseRepository;
         private IMapper mapper;
         private IAgendaService agendaService;
         private IAlumnoService alumnoService;
 
-        public DashBoardService(IMapper mapper, IAlumnoService alumnoService, IRepository<AlumnoClase> alumnoClaseRepository, IActividadRepository actividadRepository, IClaseService claseService, IAgendaService agendaService)
+        public DashBoardService(IMapper mapper, IAlumnoService alumnoService, IRepository<AlumnoClase> alumnoClaseRepository, IActividadRepository actividadRepository, IClaseService claseService, IAgendaService agendaService, IAlumnoRepository alumnoRepository)
         {
             this.actividadRepository = actividadRepository;
             this.claseService = claseService;
             this.agendaService = agendaService;
             this.alumnoService = alumnoService;
             this.alumnoClaseRepository = alumnoClaseRepository;
+            this.alumnoRepository = alumnoRepository;
             this.mapper = mapper;
         }
 
@@ -53,6 +55,18 @@ namespace Services
             dash.TotalClasesToday = clasesToday.CantidadClasesHoy;
             dash.TotalAgendadosHoy = clasesToday.SumaCuposOtorgadosHoy;
             return dash;
+        }
+        public IEnumerable<AlumnoDTO> GetPaseLibre2Faltas()
+        {
+            var startOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1).Date.AddHours(23).AddMinutes(59).AddSeconds(59);
+
+            var alumnos = this.alumnoRepository.IncludeAll()
+                .Where(a => a.Plan.Id == 39 &&
+                            a.Faltas.Count(f => f.Fecha >= startOfMonth && f.Fecha <= endOfMonth) >= 2)
+                .ToList();
+
+            return this.mapper.Map<IEnumerable<AlumnoDTO>>(alumnos);
         }
     }
 }

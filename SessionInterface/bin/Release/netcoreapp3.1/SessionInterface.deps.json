@@ -16,7 +16,10 @@
       },
       "Domain/1.0.0": {
         "runtime": {
-          "Domain.dll": {}
+          "Domain.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       },
       "Dto/1.0.0": {
@@ -24,7 +27,10 @@
           "Domain": "1.0.0"
         },
         "runtime": {
-          "Dto.dll": {}
+          "Dto.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       }
     }

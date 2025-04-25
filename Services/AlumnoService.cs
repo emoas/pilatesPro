@@ -432,10 +432,15 @@ namespace Services
         public void CancelReservaWeb(int alumnoId, int claseId)
         {
             Clase claseUpdate = this.claseRepository.IncludeAll("ClasesAlumno").FirstOrDefault(c => c.Id == claseId);
+            if (claseUpdate == null)
+                throw new ArgumentException("Clase no encontrada.");
             Alumno alumno = this.alumnoRepository.IncludeAll().FirstOrDefault(a => a.Id == alumnoId);
+            if (alumno == null)
+                throw new ArgumentException("Alumno no encontrado.");
 
             var alumnoClaseAUpdate = claseUpdate.ClasesAlumno.FirstOrDefault(ac => ac.AlumnoId == alumnoId && ac.Estado== AlumnoClase.estado.CONFIRMADA);
-
+            if (alumnoClaseAUpdate == null)
+                throw new ArgumentException("No hay una reserva confirmada para cancelar.");
             if (alumnoClaseAUpdate != null && alumnoClaseAUpdate.Estado==AlumnoClase.estado.CONFIRMADA)
             {
                 //claseUpdate.ClasesAlumno.Remove(alumnoClaseAEliminar);
@@ -456,7 +461,7 @@ namespace Services
                     };
                     this.AgregarCupoPendiente(cupoPendiente);
                 }
-                else if (alumno.PlanId == 39 && fechaActual >= limiteCancelacion)//Alumno Pase Libre
+                else if (fechaActual >= limiteCancelacion)//Alumno Pase Libre
                 {
                     this.AgregarFalta(alumnoId, claseId, AlumnoClase.estado.CANCELADAFALTA);
                 }
@@ -473,7 +478,14 @@ namespace Services
                 Tipo= Logs_AddAlumnoClase.tipo.CANCELACIONWEB
             };
             this.logService.AddAlumnoClase(logsAlumnoClase);
-            this.claseRepository.Update(claseUpdate);
+            try
+            {
+                this.claseRepository.Update(claseUpdate);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("La clase no se pudo actualizar correctamente.");
+            }
         }
 
         private void QuitarAlumnoTodasLasClases(int alumnoId)
@@ -765,17 +777,12 @@ namespace Services
         }
         public bool ReservaToday(int alumnoId, DateTime day)
         {
-            // Obtener solo la fecha sin la hora
-            DateTime dayStart = day.Date;
-            DateTime dayEnd = dayStart.AddDays(1).AddTicks(-1); // Fin del día
-
             var count = this.alumnoClaseRepository.IncludeAll("Clase")
                 .Where(ac => ac.AlumnoId == alumnoId &&
-                             ac.Clase.HorarioInicio >= dayStart &&
-                             ac.Clase.HorarioInicio <= dayEnd && // Comparar dentro del mismo día
+                             ac.Clase.HorarioInicio.Date == day.Date && // Comparar solo la fecha
                              (ac.Estado == AlumnoClase.estado.CONFIRMADA ||
-                             ac.Estado == AlumnoClase.estado.CANCELADAFALTA ||
-                             ac.Estado == AlumnoClase.estado.FALTA))
+                              ac.Estado == AlumnoClase.estado.CANCELADAFALTA ||
+                              ac.Estado == AlumnoClase.estado.FALTA))
                 .Count();
 
             return count > 0; // Devuelve true si hay al menos una reserva
@@ -790,9 +797,11 @@ namespace Services
                     .Where(ac => ac.AlumnoId == alumnoId &&
                                  ac.Alumno.Plan.ActividadLibreId!=ac.Clase.ActividadId &&
                                  ac.Clase.HorarioInicio >= startOfWeek &&
-                                 ac.Clase.HorarioFin <= endOfWeek
-                                 && ac.Estado == AlumnoClase.estado.CONFIRMADA
-                                 && ac.Tipo != AlumnoClase.tipo.RECUPERACION)
+                                 ac.Clase.HorarioFin <= endOfWeek &&
+                                 (ac.Estado == AlumnoClase.estado.CONFIRMADA ||
+                                 ac.Estado == AlumnoClase.estado.CANCELADAFALTA ||
+                                 ac.Estado == AlumnoClase.estado.FALTA) &&
+                                 ac.Tipo != AlumnoClase.tipo.RECUPERACION)
                     .Count();
                 return count;
         }
@@ -824,8 +833,8 @@ namespace Services
             // Contar las reservas dentro del rango del mes
             var alumnoClases = this.alumnoClaseRepository.IncludeAllAnidado("Clase.Actividad", "Clase.Local")
                 .Where(ac => ac.AlumnoId == alumnoId &&
-                             ac.Clase.HorarioInicio >= desde &&
-                             ac.Clase.HorarioFin <= hasta).OrderBy(ac => ac.Clase.HorarioInicio);
+                             ac.Clase.HorarioInicio.Date >= desde.Date &&
+                             ac.Clase.HorarioFin.Date <= hasta.Date).OrderBy(ac => ac.Clase.HorarioInicio);
 
             return this.mapper.Map<IEnumerable<AlumnoClaseDTO>>(alumnoClases);
         }

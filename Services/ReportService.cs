@@ -31,8 +31,7 @@ namespace Services
 
             // Obtener todas las clases que cumplan con los criterios
             var reservas = this.claseRepository.IncludeAllAnidado("Local", "Actividad", "ClasesAlumno.Alumno")
-                .Where(c => c.Activo == true &&
-                            c.HorarioInicio.Date >= desde &&
+                .Where(c => c.HorarioInicio.Date >= desde &&
                             c.HorarioFin.Date <= hasta &&
                             c.ClasesAlumno.Any(ca => ca.Alumno.PlanId == planId))
                 .ToList();

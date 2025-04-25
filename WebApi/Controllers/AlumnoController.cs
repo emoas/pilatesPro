@@ -337,7 +337,7 @@ namespace WebApi.Controllers
             }
             catch (System.Exception exception)
             {
-                return StatusCode(500, "Algo salió mal.");
+                return StatusCode(500, exception.Message);
             }
         }
 

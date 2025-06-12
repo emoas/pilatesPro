@@ -16,11 +16,11 @@ C:\Users\Moas\source\repos\PilatesPro\Services\bin\Debug\netcoreapp3.1\ServicesI
 C:\Users\Moas\source\repos\PilatesPro\Services\bin\Debug\netcoreapp3.1\Commons.pdb
 C:\Users\Moas\source\repos\PilatesPro\Services\bin\Debug\netcoreapp3.1\SessionInterface.pdb
 C:\Users\Moas\source\repos\PilatesPro\Services\obj\Debug\netcoreapp3.1\Services.csproj.AssemblyReference.cache
+C:\Users\Moas\source\repos\PilatesPro\Services\obj\Debug\netcoreapp3.1\Services.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\Moas\source\repos\PilatesPro\Services\obj\Debug\netcoreapp3.1\Services.AssemblyInfoInputs.cache
 C:\Users\Moas\source\repos\PilatesPro\Services\obj\Debug\netcoreapp3.1\Services.AssemblyInfo.cs
 C:\Users\Moas\source\repos\PilatesPro\Services\obj\Debug\netcoreapp3.1\Services.csproj.CoreCompileInputs.cache
-C:\Users\Moas\source\repos\PilatesPro\Services\obj\Debug\netcoreapp3.1\Services.dll
-C:\Users\Moas\source\repos\PilatesPro\Services\obj\Debug\netcoreapp3.1\Services.pdb
-C:\Users\Moas\source\repos\PilatesPro\Services\obj\Debug\netcoreapp3.1\Services.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\Moas\source\repos\PilatesPro\Services\obj\Debug\netcoreapp3.1\Services.sourcelink.json
 C:\Users\Moas\source\repos\PilatesPro\Services\obj\Debug\netcoreapp3.1\Services.csproj.Up2Date
+C:\Users\Moas\source\repos\PilatesPro\Services\obj\Debug\netcoreapp3.1\Services.dll
+C:\Users\Moas\source\repos\PilatesPro\Services\obj\Debug\netcoreapp3.1\Services.pdb

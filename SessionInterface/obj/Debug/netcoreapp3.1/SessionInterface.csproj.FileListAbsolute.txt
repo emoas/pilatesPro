@@ -6,11 +6,11 @@ C:\Users\Moas\source\repos\PilatesPro\SessionInterface\bin\Debug\netcoreapp3.1\D
 C:\Users\Moas\source\repos\PilatesPro\SessionInterface\bin\Debug\netcoreapp3.1\Dto.pdb
 C:\Users\Moas\source\repos\PilatesPro\SessionInterface\bin\Debug\netcoreapp3.1\Domain.pdb
 C:\Users\Moas\source\repos\PilatesPro\SessionInterface\obj\Debug\netcoreapp3.1\SessionInterface.csproj.AssemblyReference.cache
+C:\Users\Moas\source\repos\PilatesPro\SessionInterface\obj\Debug\netcoreapp3.1\SessionInterface.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\Moas\source\repos\PilatesPro\SessionInterface\obj\Debug\netcoreapp3.1\SessionInterface.AssemblyInfoInputs.cache
 C:\Users\Moas\source\repos\PilatesPro\SessionInterface\obj\Debug\netcoreapp3.1\SessionInterface.AssemblyInfo.cs
 C:\Users\Moas\source\repos\PilatesPro\SessionInterface\obj\Debug\netcoreapp3.1\SessionInterface.csproj.CoreCompileInputs.cache
-C:\Users\Moas\source\repos\PilatesPro\SessionInterface\obj\Debug\netcoreapp3.1\SessionInterface.dll
-C:\Users\Moas\source\repos\PilatesPro\SessionInterface\obj\Debug\netcoreapp3.1\SessionInterface.pdb
-C:\Users\Moas\source\repos\PilatesPro\SessionInterface\obj\Debug\netcoreapp3.1\SessionInterface.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\Moas\source\repos\PilatesPro\SessionInterface\obj\Debug\netcoreapp3.1\SessionInterface.sourcelink.json
 C:\Users\Moas\source\repos\PilatesPro\SessionInterface\obj\Debug\netcoreapp3.1\SessionI.A4BF7804.Up2Date
+C:\Users\Moas\source\repos\PilatesPro\SessionInterface\obj\Debug\netcoreapp3.1\SessionInterface.dll
+C:\Users\Moas\source\repos\PilatesPro\SessionInterface\obj\Debug\netcoreapp3.1\SessionInterface.pdb

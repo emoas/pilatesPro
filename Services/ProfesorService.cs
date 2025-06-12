@@ -17,13 +17,15 @@ namespace Services
         private IRepository<Patologia> patologiaRepository;
         private IRepository<Actividad> actividadRepository;
         private IRepository<Local> localRepository;
+        private IRepository<Agenda> agendaRepository;
         private IMapper mapper;
-        public ProfesorService(IMapper mapper, IProfeRepository profeRepository, IRepository<Patologia> patologiaRepository, IRepository<Local> localRepository, IRepository<Actividad> actividadRepository)
+        public ProfesorService(IMapper mapper, IProfeRepository profeRepository, IRepository<Patologia> patologiaRepository, IRepository<Local> localRepository, IRepository<Actividad> actividadRepository, IRepository<Agenda> agendaRepository)
         {
             this.profeRepository = profeRepository;
             this.patologiaRepository = patologiaRepository;
             this.localRepository = localRepository;
             this.actividadRepository = actividadRepository;
+            this.agendaRepository = agendaRepository;
             this.mapper = mapper;
 
         }
@@ -97,6 +99,16 @@ namespace Services
                                 .OrderByDescending(p => p.Activo)
                                 .ToList();
             return this.mapper.Map<IEnumerable<ProfesorDTO>>(profesores);
+        }
+
+        public IEnumerable<AgendaDTO> GetClases(int profeId, DateTime desde, DateTime hasta)
+        {
+            var agendas = this.agendaRepository.IncludeAll("Clase.Profesor").Where(
+               a => a.Clase.Profesor.Id == profeId
+               && a.Clase.HorarioInicio.Date >= desde.Date
+               && a.Clase.HorarioInicio.Date <= hasta.Date)
+               .ToList();
+            return this.mapper.Map<IEnumerable<AgendaDTO>>(agendas);
         }
 
         public ProfesorDTO GetId(int profeId)

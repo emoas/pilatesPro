@@ -275,6 +275,27 @@ namespace WebApi.Controllers
                 return StatusCode(500, "Algo salió mal.");
             }
         }
+        [HttpGet("cancelaciones/{idAlumno}/{fecha}")]
+        public IActionResult GetCancelaciones([FromRoute] int idAlumno, DateTime fecha)
+        {
+            try
+            {
+                var total = this.alumnoService.CountCancelaciones(idAlumno, fecha);
+                return Ok(total);
+            }
+            catch (System.ArgumentException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (ValidationException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (System.Exception)
+            {
+                return StatusCode(500, "Algo salió mal.");
+            }
+        }
 
         [HttpDelete("{alumnoId}")]
         public IActionResult Desactivate(int alumnoId)
@@ -348,6 +369,27 @@ namespace WebApi.Controllers
             {
                 this.alumnoService.CancelReservaManual(idAlumnoClase, addFalta);
                 return Ok("Se cancelo reserva.");
+            }
+            catch (System.ArgumentException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (ValidationException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (System.Exception exception)
+            {
+                return StatusCode(500, "Algo salió mal.");
+            }
+        }
+        [HttpDelete("deleteCancel/{idAlumnoClase}/{ajustarEliminadas}")]
+        public IActionResult DeleteCancelAlumnoClase([FromRoute] int idAlumnoClase, bool ajustarEliminadas)
+        {
+            try
+            {
+                this.alumnoService.DeleteCancelAlumnoClase(idAlumnoClase, ajustarEliminadas);
+                return Ok("Se elimnio la cancelación.");
             }
             catch (System.ArgumentException exception)
             {
@@ -554,6 +596,13 @@ namespace WebApi.Controllers
             {
                 return StatusCode(500, "Algo salió mal.(" + exception.Message + ")");
             }
+        }
+        [HttpPost("deshabilitar-usuarios-inactivos")]
+        public async Task<IActionResult> DeshabilitarUsuariosInactivos()
+        {
+            var resultado = await alumnoService.DeshabilitarUsuariosInactivosAsync();
+
+            return Ok(new { mensaje = "Usuarios deshabilitados", cantidad = resultado.Count, usuarios = resultado });
         }
     }
 }

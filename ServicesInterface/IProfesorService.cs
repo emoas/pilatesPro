@@ -1,4 +1,6 @@
-﻿using Dto;
+﻿using Domain.Alumnos;
+using Dto;
+using Dto.Alumnos;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -12,5 +14,7 @@ namespace ServicesInterface
         ProfesorDTO Update(ProfesorDTO personalDTOUpdate);
         void Remove(int personalId);
         ProfesorDTO GetId(int profeId);
+        IEnumerable<AgendaDTO> GetClases(int profeId, DateTime desde, DateTime hasta);
     }
 }
+ 

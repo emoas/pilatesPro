@@ -2,6 +2,7 @@
 using Dto;
 using Microsoft.AspNetCore.Mvc;
 using ServicesInterface;
+using System;
 
 namespace WebApi.Controllers
 {
@@ -76,6 +77,27 @@ namespace WebApi.Controllers
             catch (System.Exception)
             {
                 return StatusCode(500, "Algo salió mal.");
+            }
+        }
+        [HttpGet("clases/{profeId}/{desde}/{hasta}")]
+        public IActionResult GetClases([FromRoute] int profeId, DateTime desde, DateTime hasta)
+        {
+            try
+            {
+                var agendas = this.profeService.GetClases(profeId, desde, hasta);
+                return Ok(agendas);
+            }
+            catch (System.ArgumentException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (ValidationException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (System.Exception exception)
+            {
+                return StatusCode(500, "Algo salió mal: "+ exception.Message);
             }
         }
 

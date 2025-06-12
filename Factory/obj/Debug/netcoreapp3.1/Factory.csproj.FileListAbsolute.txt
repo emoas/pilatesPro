@@ -22,11 +22,11 @@ C:\Users\Moas\source\repos\PilatesPro\Factory\bin\Debug\netcoreapp3.1\DataAccess
 C:\Users\Moas\source\repos\PilatesPro\Factory\bin\Debug\netcoreapp3.1\Domain.pdb
 C:\Users\Moas\source\repos\PilatesPro\Factory\bin\Debug\netcoreapp3.1\Dto.pdb
 C:\Users\Moas\source\repos\PilatesPro\Factory\obj\Debug\netcoreapp3.1\Factory.csproj.AssemblyReference.cache
+C:\Users\Moas\source\repos\PilatesPro\Factory\obj\Debug\netcoreapp3.1\Factory.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\Moas\source\repos\PilatesPro\Factory\obj\Debug\netcoreapp3.1\Factory.AssemblyInfoInputs.cache
 C:\Users\Moas\source\repos\PilatesPro\Factory\obj\Debug\netcoreapp3.1\Factory.AssemblyInfo.cs
 C:\Users\Moas\source\repos\PilatesPro\Factory\obj\Debug\netcoreapp3.1\Factory.csproj.CoreCompileInputs.cache
-C:\Users\Moas\source\repos\PilatesPro\Factory\obj\Debug\netcoreapp3.1\Factory.dll
-C:\Users\Moas\source\repos\PilatesPro\Factory\obj\Debug\netcoreapp3.1\Factory.pdb
-C:\Users\Moas\source\repos\PilatesPro\Factory\obj\Debug\netcoreapp3.1\Factory.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\Moas\source\repos\PilatesPro\Factory\obj\Debug\netcoreapp3.1\Factory.sourcelink.json
 C:\Users\Moas\source\repos\PilatesPro\Factory\obj\Debug\netcoreapp3.1\Factory.csproj.Up2Date
+C:\Users\Moas\source\repos\PilatesPro\Factory\obj\Debug\netcoreapp3.1\Factory.dll
+C:\Users\Moas\source\repos\PilatesPro\Factory\obj\Debug\netcoreapp3.1\Factory.pdb

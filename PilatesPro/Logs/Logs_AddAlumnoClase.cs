@@ -14,7 +14,7 @@ namespace Domain.Logs
         public DateTime Fecha { get; set; }
         public enum estado { PENDIENTE, RESUELTO }
         public estado Estado { get; set; }
-        public enum tipo { RESERVAADMIN, CANCELACIONWEB, RESERVAWEB, CANCELACIONADMIN }
+        public enum tipo { RESERVAADMIN, CANCELACIONWEB, RESERVAWEB, CANCELACIONADMIN,ELIMINADOADMIN }
         public tipo Tipo { get; set; }
     }
 }

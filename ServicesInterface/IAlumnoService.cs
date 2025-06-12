@@ -4,6 +4,7 @@ using Dto.Alumnos;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ServicesInterface
 {
@@ -16,6 +17,7 @@ namespace ServicesInterface
         void Desactivate(int alumnoId);
         void RemoveAlumnoClase(int alumnoId, int claseId);
         void CancelReservaManual(int idAlumnoClase, bool addFalta);
+        void DeleteCancelAlumnoClase(int idAlumnoClase, bool ajustarEliminadas);
         void CancelReservaWeb(int alumnoId, int claseId);
         void addClasesFijasAlumno(int alumnoId, ClaseFijaDTO claseFija);
         void RemoveClaseFija(int id);
@@ -32,10 +34,12 @@ namespace ServicesInterface
         void QuitarFalta(int idAlumnoClase);
         int ObtenerFaltasDelMes(int alumnoId, DateTime fecha);
         int CuposPendientes(int alumnoId);
+        int CountCancelaciones(int alumnoId, DateTime fecha);
         IEnumerable<CupoPendienteDTO> CuposRecuperacion(int alumnoId);
         void AgregarLicencia(LicenciaAlumnoDTO licenciaAlumno);
         void EliminarLicencia(int idLicencia);
         AlumnoDTO GetLicenciaAlumno(int alumnoId);
         bool EstaDeLicencia(int idAlumno, DateTime fecha);
+        Task<List<string>> DeshabilitarUsuariosInactivosAsync();
     }
 }

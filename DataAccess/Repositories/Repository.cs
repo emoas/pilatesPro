@@ -65,18 +65,18 @@ namespace DataAccess.Repositories
         public IQueryable<T> IncludeAll(params string[] list)
         {
             IQueryable<T> queryable = Set;
-            var type = typeof(T);
-            var properties = type.GetProperties();
-            foreach (var property in properties)
+
+            foreach (var include in list)
             {
-                if (list.Contains(property.Name))
+                if (!string.IsNullOrWhiteSpace(include))
                 {
-                    queryable = queryable.Include(property.Name);
+                    queryable = queryable.Include(include);
                 }
             }
+
             return queryable;
         }
-
+       
         protected virtual void Dispose(bool disposing)
         {
             if (!this.disposed)

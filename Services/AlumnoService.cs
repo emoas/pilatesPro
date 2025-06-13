@@ -1179,7 +1179,7 @@ namespace Services
                 {
                     alumno.Activo = false;
                     logUsuarios.Add($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Usuario deshabilitado: {alumno.Email}");
-                    //alumnoRepository.Update(alumno);
+                    alumnoRepository.Update(alumno);
                 }
             }
             return Task.FromResult(logUsuarios);

@@ -12,5 +12,8 @@ namespace ServicesInterface
         IEnumerable<AgendaDTO> GetClasesLocalFecha(int idLocal, DateTime fecha);
         IEnumerable<ClaseDTO> GetClasesProfeFecha(int idProfe, DateTime fecha);
         IEnumerable<AlumnoDTO> GetPaseLibre2Faltas();
+        int GetReservasWeb(int mes);
+        int GetAlumnosActivosPlan(int planId);
+        int GetAlumnosActivosDirectos();
     }
 }

@@ -33,6 +33,18 @@ namespace Services
             this.mapper = mapper;
         }
 
+        public int GetAlumnosActivosPlan(int planId)
+        {
+            return this.alumnoRepository.IncludeAll("Plan")
+               .Where(a => a.Activo && a.Plan.Id == planId)
+               .Count();
+        }
+        public int GetAlumnosActivosDirectos()
+        {
+            return this.alumnoRepository.IncludeAll("Plan")
+               .Where(a => a.Activo && a.Plan.Id != 39 && a.Plan.Id != 40)
+               .Count();
+        }
         public IEnumerable<AgendaDTO> GetClasesLocalFecha(int idLocal, DateTime fecha)
         {
             var agendas = this.agendaService.GetPorFecha(idLocal,fecha)
@@ -67,6 +79,13 @@ namespace Services
                 .ToList();
 
             return this.mapper.Map<IEnumerable<AlumnoDTO>>(alumnos);
+        }
+
+        public int GetReservasWeb(int mes)
+        {
+            return this.alumnoClaseRepository.List()
+                .Where(ac => ac.Fecha.HasValue && ac.Fecha.Value.Month == mes && ac.Tipo == AlumnoClase.tipo.WEB)
+                .Count();
         }
     }
 }

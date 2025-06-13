@@ -98,5 +98,68 @@ namespace WebApi.Controllers
                 return StatusCode(500, "Algo salió mal.");
             }
         }
+        [HttpGet("reservasweb/{mes}")]
+        public IActionResult GetReservasWeb([FromRoute] int mes)
+        {
+            try
+            {
+                var reservas = this.dashBoardService.GetReservasWeb(mes);
+                return Ok(reservas);
+            }
+            catch (System.ArgumentException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (ValidationException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (System.Exception)
+            {
+                return StatusCode(500, "Algo salió mal.");
+            }
+        }
+        [HttpGet("alumnosActivosPlan/{planId}")]
+        public IActionResult GetAlumnosActivosPlan([FromRoute] int planId)
+        {
+            try
+            {
+                var alumnos = this.dashBoardService.GetAlumnosActivosPlan(planId);
+                return Ok(alumnos);
+            }
+            catch (System.ArgumentException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (ValidationException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (System.Exception)
+            {
+                return StatusCode(500, "Algo salió mal.");
+            }
+        }
+        [HttpGet("alumnosActivosDirectos")]
+        public IActionResult GetAlumnosActivosDirectos()
+        {
+            try
+            {
+                var alumnos = this.dashBoardService.GetAlumnosActivosDirectos();
+                return Ok(alumnos);
+            }
+            catch (System.ArgumentException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (ValidationException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (System.Exception)
+            {
+                return StatusCode(500, "Algo salió mal.");
+            }
+        }
     }
 }

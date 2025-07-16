@@ -582,6 +582,9 @@ namespace DataAccess.Migrations
                         .HasColumnType("datetime(6)")
                         .HasColumnName("Alumno_FechaNacimiento");
 
+                    b.Property<DateTime?>("FechaUltimaActivacion")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<string>("Observaciones")
                         .HasColumnType("longtext");
 

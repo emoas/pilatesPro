@@ -1,6 +1,7 @@
 ﻿using Domain.Alumnos;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Domain
@@ -19,6 +20,8 @@ namespace Domain
         public int CuposTotales { get; set; }
         public int CuposOtorgados { get; set; }
         public ICollection<AlumnoClase> ClasesAlumno { get; set; }
+        // Cupos otorgados solo contando los alumnos con estado CONFIRMADA
+        public int CuposConfirmados => ClasesAlumno?.Count(c => c.Estado == AlumnoClase.estado.CONFIRMADA) ?? 0;
 
         public Clase()
         {
@@ -36,6 +39,11 @@ namespace Domain
             this.HorarioInicio = horarioInicio;
             this.CuposOtorgados = cuposOtorgados;
             this.CuposTotales = cuposTotales;
+        }
+        // Método para calcular cupos disponibles
+        public int CuposDisponibles()
+        {
+            return CuposTotales - CuposConfirmados;
         }
     }
 }

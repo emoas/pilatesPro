@@ -134,6 +134,7 @@ namespace Services
             else
             {
                 alumno.Activo = true;
+                alumno.FechaUltimaActivacion = DateTime.Now;
                 this.AgregarAlumnoTodasLasClasesFijas(alumnoId);
             }
             this.alumnoRepository.Update(alumno);
@@ -1159,29 +1160,31 @@ namespace Services
             var hoy = DateTime.Now;
             var fechaLimite = hoy.AddMonths(-2);
 
-            // 1. Obtener todos los alumnos activos
             var alumnosActivos = alumnoRepository.GetAll()
-                .Where(a => a.Activo && (a.PlanId==39 || a.PlanId==40)) //Alumnos Tu Pase y Pase Libre
+                .Where(a => a.Activo && (a.PlanId == 39 || a.PlanId == 40))
                 .ToList();
 
-            // 2. Obtener IDs de alumnos que tienen reservas en los últimos 3 meses
             var alumnosConReservas = alumnoClaseRepository.GetAll()
                 .Where(ac => ac.Fecha >= fechaLimite)
                 .Select(ac => ac.AlumnoId)
                 .Distinct()
-                .ToHashSet(); // Para búsqueda rápida
+                .ToHashSet();
 
             var logUsuarios = new List<string>();
 
             foreach (var alumno in alumnosActivos)
             {
-                if (!alumnosConReservas.Contains(alumno.Id))
+                var esNuevo = alumno.FechaAlta >= fechaLimite;
+                var fueReactivadoRecientemente = alumno.FechaUltimaActivacion != null && alumno.FechaUltimaActivacion >= fechaLimite;
+
+                if (!alumnosConReservas.Contains(alumno.Id) && !esNuevo && !fueReactivadoRecientemente)
                 {
                     alumno.Activo = false;
                     logUsuarios.Add($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Usuario deshabilitado: {alumno.Email}");
                     alumnoRepository.Update(alumno);
                 }
             }
+
             return Task.FromResult(logUsuarios);
         }
     }

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using DataAccessInterface.Repositories;
 using Domain;
+using Domain.Alumnos;
 using Dto;
 using ServicesInterface;
 using System;
@@ -31,10 +32,42 @@ namespace Services
             return this.mapper.Map<IEnumerable<AgendaDTO>>(agendas);
         }
 
-        public IEnumerable<AgendaDTO> GetPorFecha(int localId,DateTime fechaDesde)
+        public IEnumerable<AgendaDTO> GetPorFecha2(int localId,DateTime fechaDesde)
         {
             var agendas = this.agendaRepository.IncludeAll("Clase", "Local").Where(a => a.HorarioInicio.Date == fechaDesde.Date && a.LocalId==localId); ;
             return this.mapper.Map<IEnumerable<AgendaDTO>>(agendas);
+        }
+
+        public IEnumerable<AgendaDTO> GetPorFecha(int localId, DateTime fechaDesde)
+        {
+            var agendas = agendaRepository.List()
+                .Where(a => a.HorarioInicio.Date == fechaDesde.Date && a.LocalId == localId)
+                .Select(a => new AgendaDTO
+                {
+                    Id = a.Id,
+                    Titulo = a.Titulo, // podés armarlo según tu lógica
+                    Dia = a.HorarioInicio.ToString("dddd"),
+                    Hora = a.HorarioInicio.ToString("HH:mm"),
+                    HorarioInicio = a.HorarioInicio,
+                    HorarioFin = a.HorarioFin,
+                    Color = a.Color, // o lo que uses
+                    LocalId = a.LocalId,
+                    Local = new LocalDTO
+                    {
+                        Id = a.Local.Id,
+                        Nombre = a.Local.Nombre
+                    },
+                    ClaseId = a.ClaseId,
+                    Clase = a.Clase == null ? null : new ClaseDTO
+                    {
+                        Id = a.Clase.Id,
+                        CuposTotales = a.Clase.CuposTotales,
+                        CuposConfirmados = a.Clase.ClasesAlumno.Count(ac => ac.Estado == AlumnoClase.estado.CONFIRMADA)
+                    }
+                })
+                .ToList();
+
+            return agendas;
         }
 
         public IEnumerable<AgendaDTO> GetLocalId(int localId)

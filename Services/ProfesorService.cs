@@ -107,6 +107,7 @@ namespace Services
                a => a.Clase.Profesor.Id == profeId
                && a.Clase.HorarioInicio.Date >= desde.Date
                && a.Clase.HorarioInicio.Date <= hasta.Date)
+                .OrderBy(a => a.Clase.HorarioInicio)
                .ToList();
             return this.mapper.Map<IEnumerable<AgendaDTO>>(agendas);
         }

@@ -444,13 +444,25 @@ namespace DataAccess.Migrations
                     b.Property<bool>("Activo")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<int?>("CantidadCancelaciones")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CantidadFaltas")
+                        .HasColumnType("int");
+
                     b.Property<string>("Descripcion")
                         .HasColumnType("longtext");
+
+                    b.Property<int?>("DiasVisualizacionAgenda")
+                        .HasColumnType("int");
 
                     b.Property<string>("Nombre")
                         .HasColumnType("longtext");
 
                     b.Property<int>("Precio")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ReglaAgenda")
                         .HasColumnType("int");
 
                     b.Property<int>("Tipo")

@@ -15,6 +15,15 @@ namespace Domain
         public int Precio { get; set; }
         public int? VecesxSemana { get; set; }
         public int? VecesxMes { get; set; }
+        public int? CantidadFaltas { get; set; }
+        public int? CantidadCancelaciones { get; set; }
+        public enum ReglaVisualizacionAgenda
+        {
+            PorDias,
+            HastaSabadoSemanaSiguiente
+        }
+        public ReglaVisualizacionAgenda ReglaAgenda { get; set; } = ReglaVisualizacionAgenda.HastaSabadoSemanaSiguiente;
+        public int? DiasVisualizacionAgenda { get; set; }
         public ICollection<Actividad> Actividades { get; set; }
         public int? ActividadLibreId { get; set; }
         public ICollection<Alumno> Alumnos { get; set; }

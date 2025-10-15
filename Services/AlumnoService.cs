@@ -386,7 +386,7 @@ namespace Services
         {
             AlumnoClase alumnoClaseAUpdate = this.alumnoClaseRepository.IncludeAll().FirstOrDefault(a => a.Id == idAlumnoClase);
             Clase claseUpdate = this.claseRepository.IncludeAll().FirstOrDefault(c => c.Id == alumnoClaseAUpdate.ClaseId);
-            Alumno alumno = this.alumnoRepository.IncludeAll().FirstOrDefault(a => a.Id == alumnoClaseAUpdate.AlumnoId);
+            Alumno alumno = this.alumnoRepository.IncludeAll("Plan").FirstOrDefault(a => a.Id == alumnoClaseAUpdate.AlumnoId);
             // Hacer una copia superficial de los valores actuales de claseUpdate
             Clase aux = new Clase
             {
@@ -434,7 +434,16 @@ namespace Services
                         FechaExpiracion = GetFechaExpiracion(claseUpdate.HorarioInicio),
                         Tipo = CupoPendiente.tipo.CANCELACIONADMIN,
                     };
-                    this.AgregarCupoPendiente(cupoPendiente);
+                    if (alumno.Plan.ActividadLibreId == null || (alumno.Plan.ActividadLibreId != null && claseUpdate.ActividadId!= alumno.Plan.ActividadLibreId))
+                    {
+                        this.AgregarCupoPendiente(cupoPendiente);
+                    }
+                }
+                // Verificar si el alumno llegó a 4 cancelaciones
+                int cancelaciones = this.CountCancelaciones(alumno.Id, claseUpdate.HorarioInicio);
+                if (alumno.Plan.Tipo == Plan.tipo.PASE_LIBRE && cancelaciones >= 4)
+                {
+                    this.CancelarTodasLasClases(alumno.Id);
                 }
             }
         }
@@ -469,7 +478,10 @@ namespace Services
                         FechaExpiracion = GetFechaExpiracion(claseUpdate.HorarioInicio),
                         Tipo = CupoPendiente.tipo.CANCELACIONWEB,
                     };
-                    this.AgregarCupoPendiente(cupoPendiente);
+                    if (alumno.Plan.ActividadLibreId == null || (alumno.Plan.ActividadLibreId != null && claseUpdate.ActividadId != alumno.Plan.ActividadLibreId))
+                    {
+                        this.AgregarCupoPendiente(cupoPendiente);
+                    }
                 }
                 else if (fechaActual >= limiteCancelacion)//Se agrega falta en caso cancelar sobre la hora
                 {
@@ -676,7 +688,7 @@ namespace Services
                         this.claseRepository.Update(clase);
                         if (tipo == AlumnoClase.tipo.RECUPERACION)
                         {
-                            this.usarCupoPendiente(alumnoId);
+                            this.usarCupoPendiente(alumnoId, clase.HorarioInicio);
                         }
                         return true; // Indicar que la operación fue exitosa
                     }
@@ -977,12 +989,12 @@ namespace Services
             }
         }
 
-        public void usarCupoPendiente(int alumnoId)
+        public void usarCupoPendiente(int alumnoId, DateTime fechaClase)
         {
             Alumno alumno = this.alumnoRepository.IncludeAll("Cupos").FirstOrDefault(a => a.Id == alumnoId);
             if (alumno != null)
             {
-                CupoPendiente cupoAux = this.ObtenerCupoPendienteMasCercano(alumno);
+                CupoPendiente cupoAux = this.ObtenerCupoPendienteMasCercano(alumno, fechaClase);
                 if (cupoAux != null)
                 {
                     cupoAux.Estado = CupoPendiente.estado.UTILIZADO;
@@ -1000,25 +1012,26 @@ namespace Services
                 throw new Exception("El alumno no existe.");
             }
         }
-        public CupoPendiente ObtenerCupoPendienteMasCercano(Alumno alumno)
+        public CupoPendiente ObtenerCupoPendienteMasCercano(Alumno alumno, DateTime fechaClase)
         {
-            // Filtrar primero los cupos pendientes con fecha de expiración y ordenarlos por la fecha más cercana
+            // Filtrar cupos pendientes vigentes con fecha de expiración
             var cupoPendienteMasCercanoConFecha = alumno.Cupos
-                .Where(c => c.Estado == CupoPendiente.estado.PENDIENTE && c.FechaExpiracion.HasValue) // Solo considerar los que tienen FechaExpiracion
-                .OrderBy(c => c.FechaExpiracion) // Ordenar por la fecha de expiración más cercana
+                .Where(c => c.Estado == CupoPendiente.estado.PENDIENTE
+                         && c.FechaExpiracion.HasValue
+                         && c.FechaExpiracion.Value.Date >= fechaClase.Date) // ✔ válido
+                .OrderBy(c => c.FechaExpiracion)
                 .FirstOrDefault();
 
-            // Si no se encuentra cupo con fecha de expiración, buscar el primer cupo sin fecha
-            if (cupoPendienteMasCercanoConFecha == null)
-            {
-                var cupoPendienteSinFecha = alumno.Cupos
-                    .Where(c => c.Estado == CupoPendiente.estado.PENDIENTE && !c.FechaExpiracion.HasValue) // Solo los que no tienen FechaExpiracion
-                    .FirstOrDefault();
+            if (cupoPendienteMasCercanoConFecha != null)
+                return cupoPendienteMasCercanoConFecha;
 
-                return cupoPendienteSinFecha;
-            }
+            // Si no hay con fecha válida, buscar el primero sin fecha de expiración
+            var cupoPendienteSinFecha = alumno.Cupos
+                .Where(c => c.Estado == CupoPendiente.estado.PENDIENTE
+                         && !c.FechaExpiracion.HasValue)
+                .FirstOrDefault();
 
-            return cupoPendienteMasCercanoConFecha;
+            return cupoPendienteSinFecha;
         }
 
         public int CuposPendientes(int alumnoId)
@@ -1038,7 +1051,7 @@ namespace Services
             Alumno alumno = this.alumnoRepository.IncludeAll("Cupos").FirstOrDefault(a => a.Id == alumnoId);
             if (alumno != null)
             {
-                return alumno.Cupos.Where(c => c.Estado == CupoPendiente.estado.PENDIENTE && c.FechaExpiracion?.Date >= fecha).Count();
+                return alumno.Cupos.Where(c => c.Estado == CupoPendiente.estado.PENDIENTE && c.FechaExpiracion?.Date >= fecha.Date).Count();
             }
             else
             {

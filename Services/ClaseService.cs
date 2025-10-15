@@ -72,15 +72,42 @@ namespace Services
             return this.mapper.Map<IEnumerable<ClaseDTO>>(clases);
         }
 
-        public IEnumerable<ClaseDTO> ActividadesParaReservar(int alumnoId,int actividadId, DateTime fechaDesde, DateTime fechaTo)
+        public IEnumerable<ClaseDTO> ActividadesParaReservar(
+            int alumnoId,
+            int actividadId,
+            DateTime fechaDesde,
+            DateTime fechaTo,
+            int? diaId = null,
+            int? horaId = null)
         {
-            var clases = this.claseRepository.IncludeAll("Local", "Actividad", "ClasesAlumno","Profesor")
+            // Paso 1: filtros que EF sí puede traducir
+            var clasesQuery = this.claseRepository
+                .IncludeAll("Local", "Actividad", "ClasesAlumno", "Profesor")
                 .Where(c => c.ActividadId == actividadId
-                 && c.HorarioInicio.Date >= fechaDesde
-                 && c.HorarioFin.Date <= fechaTo
-                 && !c.ClasesAlumno.Any(ca => ca.AlumnoId == alumnoId && ca.Estado==AlumnoClase.estado.CONFIRMADA)) // Excluir clases donde el alumno ya está registrado
-     .OrderBy(c => c.HorarioInicio);
-            return this.mapper.Map<IEnumerable<ClaseDTO>>(clases);
+                            && c.HorarioInicio.Date >= fechaDesde
+                            && c.HorarioFin.Date <= fechaTo
+                            && !c.ClasesAlumno.Any(ca => ca.AlumnoId == alumnoId
+                                                         && ca.Estado == AlumnoClase.estado.CONFIRMADA));
+
+            // Paso 2: materializar
+            var clases = clasesQuery.ToList();
+
+            // Paso 3: filtros que EF no traduce → en memoria
+            if (diaId.HasValue)
+            {
+                clases = clases
+                    .Where(c => (int)c.HorarioInicio.DayOfWeek == diaId.Value)
+                    .ToList();
+            }
+
+            if (horaId.HasValue)
+            {
+                clases = clases
+                    .Where(c => c.HorarioInicio.Hour == horaId.Value)
+                    .ToList();
+            }
+
+            return this.mapper.Map<IEnumerable<ClaseDTO>>(clases.OrderBy(c => c.HorarioInicio));
         }
 
         public void CopyTo(int localId, DateTime fechaDesde, DateTime fechaTo)

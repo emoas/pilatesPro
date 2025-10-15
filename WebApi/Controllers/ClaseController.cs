@@ -125,11 +125,25 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("between/{alumnoId}/{actividadId}/{fechaDesde}/{fechaTo}")]
-        public IActionResult ActividadesParaReservar([FromRoute] int alumnoId, int actividadId, DateTime fechaDesde, DateTime fechaTo)
+        public IActionResult ActividadesParaReservar(
+            [FromRoute] int alumnoId,
+            [FromRoute] int actividadId,
+            [FromRoute] DateTime fechaDesde,
+            [FromRoute] DateTime fechaTo,
+            [FromQuery] int? diaId,
+            [FromQuery] int? horaId)
         {
             try
             {
-                var clases = this.claseService.ActividadesParaReservar(alumnoId,actividadId, fechaDesde, fechaTo);
+                var clases = this.claseService.ActividadesParaReservar(
+                    alumnoId,
+                    actividadId,
+                    fechaDesde,
+                    fechaTo,
+                    diaId,
+                    horaId
+                );
+
                 return Ok(clases);
             }
             catch (System.ArgumentException exception)

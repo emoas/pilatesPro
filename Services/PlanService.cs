@@ -6,7 +6,9 @@ using ServicesInterface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
+using static Domain.Plan;
 
 namespace Services
 {
@@ -32,8 +34,14 @@ namespace Services
                 VecesxSemana=planDTO.VecesxSemana ?? 0,
                 VecesxMes=planDTO.VecesxMes ?? 0,
                 Activo =true,
-                ActividadLibreId=planDTO.ActividadLibreId
+                ActividadLibreId=planDTO.ActividadLibreId,
+                DiasVisualizacionAgenda = planDTO.DiasVisualizacionAgenda ?? 0,
+                ReglaAgenda = planDTO.ReglaAgenda
             };
+
+            plan.CantidadCancelaciones = planDTO.CantidadCancelaciones ?? 0;
+            plan.CantidadFaltas = planDTO.CantidadFaltas ?? 0;      
+
             var actividades = new List<Actividad>();
 
             if (planDTO.Actividades != null)
@@ -95,6 +103,11 @@ namespace Services
             planToUpdate.VecesxSemana = planDTO.VecesxSemana ?? 0;
             planToUpdate.VecesxMes = planDTO.VecesxMes ?? 0;
             planToUpdate.ActividadLibreId = planDTO.ActividadLibreId;
+            planToUpdate.DiasVisualizacionAgenda = planDTO.DiasVisualizacionAgenda ?? 0;
+            planToUpdate.ReglaAgenda = planDTO.ReglaAgenda;
+            planToUpdate.CantidadCancelaciones = planDTO.CantidadCancelaciones ?? 0;
+            planToUpdate.CantidadFaltas = planDTO.CantidadFaltas ?? 0;         
+
             var actividades = new List<Actividad>();
 
             if (planDTO.Actividades != null)

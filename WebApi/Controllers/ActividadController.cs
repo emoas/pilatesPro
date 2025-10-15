@@ -2,6 +2,7 @@
 using Dto;
 using Microsoft.AspNetCore.Mvc;
 using ServicesInterface;
+using System;
 
 namespace WebApi.Controllers
 {
@@ -62,8 +63,29 @@ namespace WebApi.Controllers
         {
             try
             {
-                var local = this.actividadService.GetId(actividadId);
-                return Ok(local);
+                var actividad = this.actividadService.GetId(actividadId);
+                return Ok(actividad);
+            }
+            catch (System.ArgumentException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (ValidationException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (System.Exception)
+            {
+                return StatusCode(500, "Algo salió mal.");
+            }
+        }
+        [HttpGet("light/{actividadId}")]
+        public IActionResult GetLightId([FromRoute] int actividadId)
+        {
+            try
+            {
+                var actividad = this.actividadService.GetLightId(actividadId);
+                return Ok(actividad);
             }
             catch (System.ArgumentException exception)
             {
@@ -85,6 +107,27 @@ namespace WebApi.Controllers
             {
                 var profesores = this.actividadService.GetProfesores(actividadId);
                 return Ok(profesores);
+            }
+            catch (System.ArgumentException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (ValidationException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (System.Exception)
+            {
+                return StatusCode(500, "Algo salió mal.");
+            }
+        }
+        [HttpGet("clases/{actividadId}/{desde}/{hasta}")]
+        public IActionResult GetClases([FromRoute] int actividadId, DateTime desde, DateTime hasta)
+        {
+            try
+            {
+                var clases = this.actividadService.GetClases(actividadId, desde,hasta);
+                return Ok(clases);
             }
             catch (System.ArgumentException exception)
             {

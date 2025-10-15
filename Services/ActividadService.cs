@@ -17,13 +17,15 @@ namespace Services
         private IProfeRepository profeRepository;
         private IActividadRepository actividadRepository;
         private IRepository<Local> localRepository;
+        private IRepository<Agenda> agendaRepository;
         private IMapper mapper;
 
-        public ActividadService(IMapper mapper, IProfeRepository profeRepository, IRepository<Local> localRepository, IActividadRepository actividadRepository)
+        public ActividadService(IMapper mapper, IProfeRepository profeRepository, IRepository<Local> localRepository, IActividadRepository actividadRepository, IRepository<Agenda> agendaRepository)
         {
             this.profeRepository = profeRepository;
             this.localRepository = localRepository;
             this.actividadRepository = actividadRepository;
+            this.agendaRepository = agendaRepository;
             this.mapper = mapper;
 
         }
@@ -81,11 +83,28 @@ namespace Services
             var actividad = this.actividadRepository.IncludeAll("Profesores","Locales","Clases", "Planes").FirstOrDefault(a => a.Id == actividadId);
             return this.mapper.Map<ActividadDTO>(actividad);
         }
+        public ActividadDTO GetLightId(int actividadId)
+        {
+            var actividad = this.actividadRepository.IncludeAll().FirstOrDefault(a => a.Id == actividadId);
+            return this.mapper.Map<ActividadDTO>(actividad);
+        }
         public IEnumerable<ProfesorLightDTO> GetProfesores(int actividadId)
         {
             var actividades = this.actividadRepository.IncludeAll("Profesores").FirstOrDefault(a => a.Id == actividadId);
 
             return this.mapper.Map<IEnumerable<ProfesorLightDTO>>(actividades.Profesores);
+        }
+        public IEnumerable<AgendaDTO> GetClases(int actividadId, DateTime desde, DateTime hasta)
+        {
+            var agendas = this.agendaRepository
+                .IncludeAll("Clase.Profesor")
+                .Where(a => a.Clase.Actividad.Id == actividadId
+                         && a.Clase.HorarioInicio >= desde
+                         && a.Clase.HorarioInicio <= hasta)
+                .OrderBy(a => a.Clase.HorarioInicio)  // ✔ fecha + hora en una sola ordenación
+                .ToList();
+
+            return this.mapper.Map<IEnumerable<AgendaDTO>>(agendas);
         }
         public void Remove(int actividadId)
         {

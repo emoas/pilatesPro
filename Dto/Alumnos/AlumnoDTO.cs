@@ -13,6 +13,7 @@ namespace Dto
         public string Celular { get; set; }
         public string Ciudad { get; set; }
         public string EmeregenciaMovil { get; set; }
+        public string Instagram { get; set; }
         public string ContactoEmergencia { get; set; }
         public string TelefonoContacto { get; set; }
         public ICollection<PatologiaDTO> PatologíasQuePresenta { get; set; }

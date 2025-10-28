@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SessionInterface")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7c58f79b4eb4d54bd7b0722482041003881b6363")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0b25505a6c753666ef6d34e8c247886a09ff8fb7")]
 [assembly: System.Reflection.AssemblyProductAttribute("SessionInterface")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SessionInterface")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

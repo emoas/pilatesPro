@@ -597,6 +597,9 @@ namespace DataAccess.Migrations
                     b.Property<DateTime?>("FechaUltimaActivacion")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<string>("Instagram")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("Observaciones")
                         .HasColumnType("longtext");
 

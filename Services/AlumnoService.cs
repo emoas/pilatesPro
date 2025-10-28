@@ -59,7 +59,8 @@ namespace Services
                 ContactoEmergencia = alumnoDTO.ContactoEmergencia,
                 TelefonoContacto = alumnoDTO.TelefonoContacto,
                 Activo = alumnoDTO.Activo,
-                FechaNacimiento = alumnoDTO.FechaNacimiento
+                FechaNacimiento = alumnoDTO.FechaNacimiento,
+                Instagram=alumnoDTO.Instagram,
             };
             var patologias = new List<Patologia>();
             var clases = new List<Clase>();
@@ -186,6 +187,7 @@ namespace Services
             alumnoToUpdate.Activo = alumnoDTOUpdate.Activo;
             alumnoToUpdate.FechaNacimiento = alumnoDTOUpdate.FechaNacimiento;
             alumnoToUpdate.Observaciones = alumnoDTOUpdate.Observaciones;
+            alumnoToUpdate.Instagram= alumnoDTOUpdate.Instagram;
 
             if (EmailExists(alumnoDTOUpdate.Email, alumnoDTOUpdate.Id))
             {
@@ -555,10 +557,11 @@ namespace Services
         {
             var startOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
             var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1).Date.AddHours(23).AddMinutes(59).AddSeconds(59);
+            var ahora = DateTime.Now;
             var alumnosClases = this.alumnoClaseRepository.IncludeAll("Clase").Where(
                 ac => ac.AlumnoId == alumnoId
                 && ac.Estado == AlumnoClase.estado.CONFIRMADA
-                && ac.Clase.HorarioInicio >= DateTime.Now.Date
+                && ac.Clase.HorarioInicio >= ahora
                 && ac.Clase.HorarioInicio <= endOfMonth)
                 .ToList();
             foreach (AlumnoClase alumnoClase in alumnosClases)
@@ -683,13 +686,39 @@ namespace Services
                     var auxCantAlumnos = clase.ClasesAlumno.Count(ac => ac.Estado == AlumnoClase.estado.CONFIRMADA);
                     if (tipo == AlumnoClase.tipo.ADMIN || auxCantAlumnos < clase.CuposTotales)
                     {
-                        clase.ClasesAlumno.Add(alumnoClase);
                         clase.CuposOtorgados = auxCantAlumnos + 1;
-                        this.claseRepository.Update(clase);
                         if (tipo == AlumnoClase.tipo.RECUPERACION)
                         {
                             this.usarCupoPendiente(alumnoId, clase.HorarioInicio);
                         }
+                        //Cancelo la clase fija si el alumno esta de licencia
+                        bool estaDeLicencia = EstaDeLicencia(alumno.Id, clase.HorarioInicio);
+                        if (estaDeLicencia && tipo == AlumnoClase.tipo.FIJO) {
+                            alumnoClase.Estado = AlumnoClase.estado.CANCELADALICENCIA;
+                            alumnoClase.FechaCancelacion = DateTime.Now;
+                            alumnoClase.Asistio = false;
+                            clase.CuposOtorgados = auxCantAlumnos - 1;
+                            Logs_AddAlumnoClase logsAlumnoClase = new Logs_AddAlumnoClase
+                            {
+                                AlumnoId = alumnoId,
+                                ClaseId = claseId,
+                                Fecha = DateTime.Now,
+                                Estado = Logs_AddAlumnoClase.estado.PENDIENTE,
+                                Descripcion = "Fija Cancelada por Licencia",
+                                Tipo = tipoLog
+                            };
+                            this.logService.AddAlumnoClase(logsAlumnoClase);
+                        }
+                        //Eliminar cancelación si reserva el mismo dia de la cancelada
+                        if (alumno.Plan.Tipo == Plan.tipo.PASE_LIBRE) {
+                            var reservaCancelada = GetCanceladaEnDia(alumnoId, DateTime.Now);
+                            if (reservaCancelada != null)
+                            {
+                                reservaCancelada.Estado= AlumnoClase.estado.PENDIENTE;
+                            }
+                        }
+                        clase.ClasesAlumno.Add(alumnoClase);
+                        this.claseRepository.Update(clase);
                         return true; // Indicar que la operación fue exitosa
                     }
                     else
@@ -764,7 +793,7 @@ namespace Services
                     bool estaDeLicencia = EstaDeLicencia(alumno.Id, clase.HorarioInicio);
                     int cuposRecuperacion = TotalCuposRecuperacion(alumno.Id, clase.HorarioInicio);
                     // Si el alumno está de licencia y el tipo NO es WEB ni RECUPERACION, no puede reservar
-                    if (estaDeLicencia && tipo != AlumnoClase.tipo.WEB && tipo != AlumnoClase.tipo.RECUPERACION)
+                    if (estaDeLicencia && tipo != AlumnoClase.tipo.WEB && tipo != AlumnoClase.tipo.RECUPERACION && tipo!= AlumnoClase.tipo.FIJO)
                     {
                         puede = false;
                         break; // Salimos del case sin evaluar otras condiciones
@@ -787,6 +816,11 @@ namespace Services
                     {
                         puede = true;
                         tipo = AlumnoClase.tipo.RECUPERACION;
+                    }
+                    //Caso para que el fijo quede si esta de licencia
+                    if (estaDeLicencia && tipo== AlumnoClase.tipo.FIJO)
+                    {
+                        puede = true;
                     }
                     break;
                 case Plan.tipo.PASE_LIBRE:
@@ -846,6 +880,17 @@ namespace Services
                 .Count();
 
             return count > 0; // Devuelve true si hay al menos una reserva
+        }
+        public AlumnoClase? GetCanceladaEnDia(int alumnoId, DateTime day)
+        {
+            var cancelada = this.alumnoClaseRepository.IncludeAll("Clase")
+                .Where(ac => ac.AlumnoId == alumnoId &&
+                             ac.Clase.HorarioInicio.Date == day.Date && // Comparar solo la fecha
+                             ac.Estado == AlumnoClase.estado.CANCELADA)
+                .OrderByDescending(ac => ac.Clase.HorarioInicio)
+                .FirstOrDefault();
+
+            return cancelada; // null si no hay
         }
 
         public int GetMisReservasSemana(int alumnoId, DateTime dayOfWeek)

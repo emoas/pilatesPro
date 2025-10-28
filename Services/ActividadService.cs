@@ -80,7 +80,7 @@ namespace Services
         //solo los profesores de la actividad
         public ActividadDTO GetId(int actividadId)
         {
-            var actividad = this.actividadRepository.IncludeAll("Profesores","Locales","Clases", "Planes").FirstOrDefault(a => a.Id == actividadId);
+            var actividad = this.actividadRepository.IncludeAll("Profesores","Locales", "Planes").FirstOrDefault(a => a.Id == actividadId);
             return this.mapper.Map<ActividadDTO>(actividad);
         }
         public ActividadDTO GetLightId(int actividadId)

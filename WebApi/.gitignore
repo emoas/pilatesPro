@@ -1,0 +1,9 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.rsuser
+*.ide
+# .NET build
+bin/
+obj/

@@ -1,9 +1,8 @@
 # Visual Studio
 .vs/
+**/bin/
+**/obj/
 *.user
 *.suo
 *.rsuser
-*.ide
-# .NET build
-bin/
-obj/
+TestResults/

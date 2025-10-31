@@ -20,10 +20,11 @@ namespace Services
         private IRepository<Local> localRepository;
         private IRepository<Clase> claseRepository;
         private IRepository<AlumnoClase> alumnoClaseRepository;
+        private IAlumnoRepository alumnoRepository;
         private IMapper mapper;
         private IAgendaService agendaService;
         private IAlumnoService alumnoService;
-        public ClaseService(IMapper mapper, IAlumnoService alumnoService, IRepository<AlumnoClase> alumnoClaseRepository, IActividadRepository actividadRepository, IProfeRepository profeRepository, IRepository<Local> localRepository, IRepository<Clase> claseRepository, IAgendaService agendaService)
+        public ClaseService(IMapper mapper, IAlumnoService alumnoService, IAlumnoRepository alumnoRepository, IRepository<AlumnoClase> alumnoClaseRepository, IActividadRepository actividadRepository, IProfeRepository profeRepository, IRepository<Local> localRepository, IRepository<Clase> claseRepository, IAgendaService agendaService)
         {
             this.actividadRepository = actividadRepository;
             this.profeRepository = profeRepository;
@@ -32,6 +33,7 @@ namespace Services
             this.agendaService = agendaService;
             this.alumnoService = alumnoService;
             this.alumnoClaseRepository = alumnoClaseRepository;
+            this.alumnoRepository = alumnoRepository;
             this.mapper = mapper;
         }
         public ClaseDTO Add(int actividadId, ClaseDTO claseDTO)
@@ -72,42 +74,65 @@ namespace Services
             return this.mapper.Map<IEnumerable<ClaseDTO>>(clases);
         }
 
-        public IEnumerable<ClaseDTO> ActividadesParaReservar(
+        public IEnumerable<ClaseLightDTO> ActividadesParaReservar(
             int alumnoId,
-            int actividadId,
             DateTime fechaDesde,
             DateTime fechaTo,
+            int? actividadId = null,
             int? diaId = null,
-            int? horaId = null)
-        {
-            // Paso 1: filtros que EF sí puede traducir
-            var clasesQuery = this.claseRepository
-                .IncludeAll("Local", "Actividad", "ClasesAlumno", "Profesor")
-                .Where(c => c.ActividadId == actividadId
-                            && c.HorarioInicio.Date >= fechaDesde
-                            && c.HorarioFin.Date <= fechaTo
-                            && !c.ClasesAlumno.Any(ca => ca.AlumnoId == alumnoId
-                                                         && ca.Estado == AlumnoClase.estado.CONFIRMADA));
+            int? horaId = null){
 
-            // Paso 2: materializar
-            var clases = clasesQuery.ToList();
+            var desde = fechaDesde.Date;
+            var hasta = fechaTo.Date.AddDays(1).AddTicks(-1);
 
-            // Paso 3: filtros que EF no traduce → en memoria
-            if (diaId.HasValue)
-            {
-                clases = clases
-                    .Where(c => (int)c.HorarioInicio.DayOfWeek == diaId.Value)
-                    .ToList();
-            }
+            // 1) IDs de actividades permitidas por el plan del alumno
+            var actividadesPermitidas = this.alumnoRepository.IncludeAll("Plan")
+                .Where(a => a.Id == alumnoId && a.PlanId != null)
+                .SelectMany(a => a.Plan.Actividades.Select(x => x.Id))
+                .Distinct()
+                .ToList();
+
+            if (actividadesPermitidas.Count == 0)
+                return Enumerable.Empty<ClaseLightDTO>();
+
+            // 2) Query base filtrada SOLO por las actividades del plan
+            var query = this.claseRepository.List()
+                .Where(c =>
+                    actividadesPermitidas.Contains(c.ActividadId) &&          // <-- clave
+                    c.HorarioInicio >= desde &&
+                    c.HorarioFin <= hasta &&
+                    !c.ClasesAlumno.Any(ca =>
+                        ca.AlumnoId == alumnoId &&
+                        ca.Estado == AlumnoClase.estado.CONFIRMADA));
+
+            // 3) Filtros extra
+            if (actividadId.HasValue)
+                query = query.Where(c => c.ActividadId == actividadId.Value);
 
             if (horaId.HasValue)
-            {
-                clases = clases
-                    .Where(c => c.HorarioInicio.Hour == horaId.Value)
-                    .ToList();
-            }
+                query = query.Where(c => c.HorarioInicio.Hour == horaId.Value);
 
-            return this.mapper.Map<IEnumerable<ClaseDTO>>(clases.OrderBy(c => c.HorarioInicio));
+            // 4) Proyección liviana (sin Include)
+            var list = query
+                .Select(c => new ClaseLightDTO
+                {
+                    Id = c.Id,
+                    HorarioInicio = c.HorarioInicio,
+                    Activo = c.Activo,
+                    CuposTotales = c.CuposTotales,
+                    CuposOtorgados = c.CuposOtorgados,
+                    CuposConfirmados = c.CuposConfirmados,
+                    Actividad = new ActividadMini { Nombre = c.Actividad.Nombre },
+                    Profesor = new ProfesorMini { Id = c.Profesor.Id, Sobrenombre = c.Profesor.Sobrenombre },
+                    Local = new LocalMini { Nombre = c.Local.Nombre }
+                })
+                .OrderBy(c => c.HorarioInicio)
+                .ToList();
+
+            if (diaId.HasValue)
+                list = list.Where(c => (int)c.HorarioInicio.DayOfWeek == diaId.Value).ToList();
+
+            return list;
         }
 
         public void CopyTo(int localId, DateTime fechaDesde, DateTime fechaTo)

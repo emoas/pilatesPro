@@ -428,7 +428,7 @@ namespace Services
                 alumnoClaseAUpdate.Asistio = false;
                 this.alumnoClaseRepository.Update(alumnoClaseAUpdate);
                 //Agrego el cupo pendiente
-                if (!addFalta && alumno.PlanId != 39 && (alumnoClaseAUpdate.Tipo == AlumnoClase.tipo.FIJO || alumnoClaseAUpdate.Tipo == AlumnoClase.tipo.PUNTUAL || alumnoClaseAUpdate.Tipo == AlumnoClase.tipo.WEB))
+                if (!addFalta && alumno.Plan.Tipo != Plan.tipo.PASE_LIBRE && (alumnoClaseAUpdate.Tipo == AlumnoClase.tipo.FIJO || alumnoClaseAUpdate.Tipo == AlumnoClase.tipo.PUNTUAL || alumnoClaseAUpdate.Tipo == AlumnoClase.tipo.WEB))
                 {
                     CupoPendiente cupoPendiente = new CupoPendiente
                     {
@@ -443,7 +443,8 @@ namespace Services
                 }
                 // Verificar si el alumno llegó a 4 cancelaciones
                 int cancelaciones = this.CountCancelaciones(alumno.Id, claseUpdate.HorarioInicio);
-                if (alumno.Plan.Tipo == Plan.tipo.PASE_LIBRE && cancelaciones >= 4)
+                bool tieneLimiteCancelaciones = alumno.Plan.CantidadCancelaciones > 0;
+                if (alumno.Plan.Tipo == Plan.tipo.PASE_LIBRE && tieneLimiteCancelaciones && cancelaciones >= alumno.Plan.CantidadCancelaciones)
                 {
                     this.CancelarTodasLasClases(alumno.Id);
                 }
@@ -472,7 +473,7 @@ namespace Services
                 this.alumnoClaseRepository.Update(alumnoClaseAUpdate);
                 DateTime fechaActual = DateTime.Now; // Fecha y hora actual
                 DateTime limiteCancelacion = claseUpdate.HorarioInicio.AddHours(-2);
-                if (alumno.PlanId != 39 && fechaActual <= limiteCancelacion && (alumnoClaseAUpdate.Tipo == AlumnoClase.tipo.FIJO || alumnoClaseAUpdate.Tipo == AlumnoClase.tipo.PUNTUAL || alumnoClaseAUpdate.Tipo == AlumnoClase.tipo.WEB))
+                if (alumno.Plan.Tipo != Plan.tipo.PASE_LIBRE && fechaActual <= limiteCancelacion && (alumnoClaseAUpdate.Tipo == AlumnoClase.tipo.FIJO || alumnoClaseAUpdate.Tipo == AlumnoClase.tipo.PUNTUAL || alumnoClaseAUpdate.Tipo == AlumnoClase.tipo.WEB))
                 {
                     CupoPendiente cupoPendiente = new CupoPendiente
                     {
@@ -491,7 +492,8 @@ namespace Services
                 }
                 // Verificar si el alumno llegó a 4 cancelaciones
                 int cancelaciones = this.CountCancelaciones(alumnoId, claseUpdate.HorarioInicio);
-                if (alumno.Plan.Tipo == Plan.tipo.PASE_LIBRE && cancelaciones >= 4)
+                bool tieneLimiteCancelaciones = alumno.Plan.CantidadCancelaciones > 0;
+                if (alumno.Plan.Tipo == Plan.tipo.PASE_LIBRE && tieneLimiteCancelaciones && cancelaciones >= alumno.Plan.CantidadCancelaciones)
                 {
                     this.CancelarTodasLasClases(alumnoId);
                 }
@@ -711,10 +713,13 @@ namespace Services
                         }
                         //Eliminar cancelación si reserva el mismo dia de la cancelada
                         if (alumno.Plan.Tipo == Plan.tipo.PASE_LIBRE) {
-                            var reservaCancelada = GetCanceladaEnDia(alumnoId, DateTime.Now);
-                            if (reservaCancelada != null)
+                            var reservaCancelada = GetCanceladaEnDia(alumnoId, clase.HorarioInicio);
+                            if (reservaCancelada != null && alumnoClase.Estado== AlumnoClase.estado.CONFIRMADA)
                             {
-                                reservaCancelada.Estado= AlumnoClase.estado.PENDIENTE;
+                                //Cambio de estado a la caneclada ese mismo día
+                                reservaCancelada.Estado= AlumnoClase.estado.CANCELADAMISMODIA;
+                                this.alumnoClaseRepository.Update(reservaCancelada);
+                                AgregarAClasesEliminadasMismoDia(alumnoId, clase.HorarioInicio);
                             }
                         }
                         clase.ClasesAlumno.Add(alumnoClase);
@@ -785,7 +790,7 @@ namespace Services
                 throw new InvalidOperationException("La actividad no está incluida en el plan del alumno.");
             }
             bool puede = false;
-
+        
             switch (alumno.Plan.Tipo)
             {
                 case Plan.tipo.SEMANAL:
@@ -824,14 +829,37 @@ namespace Services
                     }
                     break;
                 case Plan.tipo.PASE_LIBRE:
-                    // Verificar si tiene cupos mensuales
-                    bool puedeReservarMensual = this.GetMisReservasMes(alumno.Id, clase.HorarioInicio) < alumno.Plan.VecesxMes;
-                    int faltas = this.ObtenerFaltasDelMes(alumno.Id, clase.HorarioInicio);
-                    bool tieneReservaenElDia = this.ReservaToday(alumno.Id, clase.HorarioInicio.Date);
-                    int cancelaciones = this.CountCancelaciones(alumno.Id, clase.HorarioInicio);
-                    if (cuposDisponibles && puedeReservarMensual && actividadEnPlan && faltas < 2 && cancelaciones < 4 && !tieneReservaenElDia)
-                        puede = true;
-                    break;
+                    {
+                        int reservasMes = this.GetMisReservasMes(alumno.Id, clase.HorarioInicio);
+                        bool dentroDelCupoMensual = reservasMes < alumno.Plan.VecesxMes; // si aplica a PASE_LIBRE
+
+                        int faltasMes = this.ObtenerFaltasDelMes(alumno.Id, clase.HorarioInicio);
+                        bool dentroDeFaltas = faltasMes < alumno.Plan.CantidadFaltas;
+
+                        bool yaTieneReservaEseDia = this.ReservaToday(alumno.Id, clase.HorarioInicio.Date);
+
+                        int cancelacionesMes = this.CountCancelaciones(alumno.Id, clase.HorarioInicio);
+                        var reservaCanceladaHoy = GetCanceladaEnDia(alumno.Id, clase.HorarioInicio);
+
+                        // Permitir reemplazo SOLO si alcanzó el tope y cancelo una ese mismo día
+                        bool permiteReemplazoPorCancelacionHoy =
+                            (cancelacionesMes == alumno.Plan.CantidadCancelaciones) && (reservaCanceladaHoy != null);
+
+                        bool dentroDeCancelaciones =
+                            (cancelacionesMes < alumno.Plan.CantidadCancelaciones) || permiteReemplazoPorCancelacionHoy;
+
+                        // Si PASE_LIBRE NO tiene tope mensual, usa 'true' en lugar de 'dentroDelCupoMensual'
+                        bool puedeReservar =
+                            cuposDisponibles
+                            && actividadEnPlan
+                            && dentroDelCupoMensual
+                            && dentroDeFaltas
+                            && dentroDeCancelaciones
+                            && !yaTieneReservaEseDia;
+
+                        puede = puedeReservar;
+                        break;
+                    }
                 case Plan.tipo.TU_PASE:
                     // Pase sin restricciones de cantidad
                     if (cuposDisponibles && actividadEnPlan && tipo != AlumnoClase.tipo.WEB)
@@ -963,7 +991,9 @@ namespace Services
                     //this.alumnoRepository.Update(alumno);
                     this.faltaRepository.AddAndSave(nuevaFalta);
                     int faltas = this.ObtenerFaltasDelMes(alumno.Id, DateTime.Now);
-                    if (alumno.Plan.Tipo == Plan.tipo.PASE_LIBRE && faltas >= 2)
+                    // Si 0 => sin restricción de faltas
+                    bool tieneLimiteFaltas = alumno.Plan.CantidadFaltas > 0;
+                    if (alumno.Plan.Tipo == Plan.tipo.PASE_LIBRE && tieneLimiteFaltas && faltas >= alumno.Plan.CantidadFaltas)
                     {
                         this.CancelarTodasLasClases(alumnoId);
                     }
@@ -1212,6 +1242,21 @@ namespace Services
                 agregarAlumnoAClase(alumnoId, alumnoClase.ClaseId, AlumnoClase.tipo.PUNTUAL);
             }
         }
+        private void AgregarAClasesEliminadasMismoDia(int alumnoId, DateTime day)
+        {
+            var startOfMonth = new DateTime(day.Year, day.Month, 1);
+            var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1).Date.AddHours(23).AddMinutes(59).AddSeconds(59);
+            var alumnosClases = this.alumnoClaseRepository.IncludeAll("Clase").Where(
+                ac => ac.AlumnoId == alumnoId
+                && ac.Estado == AlumnoClase.estado.ELIMINADO
+                && ac.Clase.HorarioInicio >= DateTime.Now.Date
+                && ac.Clase.HorarioInicio <= endOfMonth)
+                .ToList();
+            foreach (AlumnoClase alumnoClase in alumnosClases)
+            {
+                agregarAlumnoAClase(alumnoId, alumnoClase.ClaseId, alumnoClase.Tipo);
+            }
+        }
 
         public Task<List<string>> DeshabilitarUsuariosInactivosAsync()
         {
@@ -1219,7 +1264,7 @@ namespace Services
             var fechaLimite = hoy.AddMonths(-2);
 
             var alumnosActivos = alumnoRepository.GetAll()
-                .Where(a => a.Activo && (a.PlanId == 39 || a.PlanId == 40))
+                .Where(a => a.Activo && (a.Plan.Tipo == Plan.tipo.PASE_LIBRE || a.Plan.Tipo == Plan.tipo.TU_PASE))
                 .ToList();
 
             var alumnosConReservas = alumnoClaseRepository.GetAll()

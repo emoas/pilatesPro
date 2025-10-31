@@ -124,12 +124,12 @@ namespace WebApi.Controllers
             }
         }
 
-        [HttpGet("between/{alumnoId}/{actividadId}/{fechaDesde}/{fechaTo}")]
+        [HttpGet("parareservar/{alumnoId}/{fechaDesde}/{fechaTo}")]
         public IActionResult ActividadesParaReservar(
             [FromRoute] int alumnoId,
-            [FromRoute] int actividadId,
             [FromRoute] DateTime fechaDesde,
             [FromRoute] DateTime fechaTo,
+            [FromQuery] int? actividadId,
             [FromQuery] int? diaId,
             [FromQuery] int? horaId)
         {
@@ -137,9 +137,9 @@ namespace WebApi.Controllers
             {
                 var clases = this.claseService.ActividadesParaReservar(
                     alumnoId,
-                    actividadId,
                     fechaDesde,
                     fechaTo,
+                    actividadId,
                     diaId,
                     horaId
                 );

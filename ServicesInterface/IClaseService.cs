@@ -19,7 +19,7 @@ namespace ServicesInterface
         void CopyTo(int localId,DateTime fechaDesde, DateTime fechaTo);
         IEnumerable<ClaseDTO> Between(int actividadId,DateTime fechaDesde, DateTime fechaTo);
         IEnumerable<ClaseDTO> GetClasesPorFecha(DateTime fecha);
-        IEnumerable<ClaseDTO> ActividadesParaReservar(int alumnoId,int actividadId, DateTime fechaDesde, DateTime fechaTo, int? diaId, int? horaId);
+        IEnumerable<ClaseLightDTO> ActividadesParaReservar(int alumnoId, DateTime fechaDesde, DateTime fechaTo, int? actividadId, int? diaId, int? horaId);
         void Desactivate(int claseId);
     }
 }

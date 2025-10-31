@@ -237,6 +237,40 @@ namespace DataAccess.Migrations
                     b.ToTable("Faltas");
                 });
 
+            modelBuilder.Entity("Domain.Alumnos.LicenciaAlumno", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("AlumnoId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CantidadDias")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("FechaDesde")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("FechaHasta")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("FechaIngreso")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Observaciones")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("Tipo")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AlumnoId");
+
+                    b.ToTable("LicenciaAlumno");
+                });
+
             modelBuilder.Entity("Domain.Clase", b =>
                 {
                     b.Property<int>("Id")
@@ -410,13 +444,25 @@ namespace DataAccess.Migrations
                     b.Property<bool>("Activo")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<int?>("CantidadCancelaciones")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CantidadFaltas")
+                        .HasColumnType("int");
+
                     b.Property<string>("Descripcion")
                         .HasColumnType("longtext");
+
+                    b.Property<int?>("DiasVisualizacionAgenda")
+                        .HasColumnType("int");
 
                     b.Property<string>("Nombre")
                         .HasColumnType("longtext");
 
                     b.Property<int>("Precio")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ReglaAgenda")
                         .HasColumnType("int");
 
                     b.Property<int>("Tipo")
@@ -548,6 +594,12 @@ namespace DataAccess.Migrations
                         .HasColumnType("datetime(6)")
                         .HasColumnName("Alumno_FechaNacimiento");
 
+                    b.Property<DateTime?>("FechaUltimaActivacion")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Instagram")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("Observaciones")
                         .HasColumnType("longtext");
 
@@ -599,6 +651,9 @@ namespace DataAccess.Migrations
 
                     b.Property<DateTime>("FechaNacimiento")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Sobrenombre")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("TelefonoContacto")
                         .HasColumnType("longtext");
@@ -731,6 +786,17 @@ namespace DataAccess.Migrations
                     b.Navigation("Clase");
                 });
 
+            modelBuilder.Entity("Domain.Alumnos.LicenciaAlumno", b =>
+                {
+                    b.HasOne("Domain.Alumno", "Alumno")
+                        .WithMany("Licencia")
+                        .HasForeignKey("AlumnoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Alumno");
+                });
+
             modelBuilder.Entity("Domain.Clase", b =>
                 {
                     b.HasOne("Domain.Actividad", "Actividad")
@@ -843,6 +909,8 @@ namespace DataAccess.Migrations
                     b.Navigation("Cupos");
 
                     b.Navigation("Faltas");
+
+                    b.Navigation("Licencia");
                 });
 #pragma warning restore 612, 618
         }

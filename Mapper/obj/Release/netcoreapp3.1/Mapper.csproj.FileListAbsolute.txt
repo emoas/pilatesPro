@@ -9,6 +9,8 @@ C:\Users\Moas\source\repos\PilatesPro\Mapper\obj\Release\netcoreapp3.1\Mapper.cs
 C:\Users\Moas\source\repos\PilatesPro\Mapper\obj\Release\netcoreapp3.1\Mapper.AssemblyInfoInputs.cache
 C:\Users\Moas\source\repos\PilatesPro\Mapper\obj\Release\netcoreapp3.1\Mapper.AssemblyInfo.cs
 C:\Users\Moas\source\repos\PilatesPro\Mapper\obj\Release\netcoreapp3.1\Mapper.csproj.CoreCompileInputs.cache
-C:\Users\Moas\source\repos\PilatesPro\Mapper\obj\Release\netcoreapp3.1\Mapper.csproj.CopyComplete
 C:\Users\Moas\source\repos\PilatesPro\Mapper\obj\Release\netcoreapp3.1\Mapper.dll
 C:\Users\Moas\source\repos\PilatesPro\Mapper\obj\Release\netcoreapp3.1\Mapper.pdb
+C:\Users\Moas\source\repos\PilatesPro\Mapper\obj\Release\netcoreapp3.1\Mapper.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Moas\source\repos\PilatesPro\Mapper\obj\Release\netcoreapp3.1\Mapper.sourcelink.json
+C:\Users\Moas\source\repos\PilatesPro\Mapper\obj\Release\netcoreapp3.1\Mapper.csproj.Up2Date

@@ -2,6 +2,7 @@
 using DataAccessInterface.Repositories;
 using Domain;
 using Domain.Alumnos;
+using Dto;
 using Dto.Reports;
 using ServicesInterface;
 using System;
@@ -24,15 +25,13 @@ namespace Services
             this.claseRepository = claseRepository;
             this.mapper = mapper;
         }
-
         public List<ReservaPorPlanDTO> GetReservasPorPLan(int planId, DateTime desde, DateTime hasta)
         {
             var result = new List<ReservaPorPlanDTO>();
 
             // Obtener todas las clases que cumplan con los criterios
             var reservas = this.claseRepository.IncludeAllAnidado("Local", "Actividad", "ClasesAlumno.Alumno")
-                .Where(c => c.Activo == true &&
-                            c.HorarioInicio.Date >= desde &&
+                .Where(c => c.HorarioInicio.Date >= desde &&
                             c.HorarioFin.Date <= hasta &&
                             c.ClasesAlumno.Any(ca => ca.Alumno.PlanId == planId))
                 .ToList();
@@ -43,7 +42,8 @@ namespace Services
     .Where(ca => ca.Alumno.PlanId == planId &&
                  ((ca.Estado == AlumnoClase.estado.CONFIRMADA) ||
                   (ca.Estado == AlumnoClase.estado.CANCELADA &&
-                   ca.FechaCancelacion >= clase.HorarioInicio.AddHours(-2))))
+                   ca.FechaCancelacion >= clase.HorarioInicio.AddHours(-2)) || ca.Estado == AlumnoClase.estado.CANCELADAFALTA
+                   || ca.Estado == AlumnoClase.estado.FALTA))
     .ToList();
                 foreach (var claseAlumno in alumnosFiltrados)
                 {
@@ -55,6 +55,7 @@ namespace Services
                         ClaseId = clase.Id,
                         ActividadNombre = clase.Actividad.Nombre,
                         LocalNombre = clase.Local.Nombre,
+                        Estado= claseAlumno.Estado,
                         HorarioInicio = clase.HorarioInicio,
                         HorarioFin = clase.HorarioFin
                     };

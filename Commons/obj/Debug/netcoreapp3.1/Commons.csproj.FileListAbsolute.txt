@@ -1,9 +1,10 @@
 C:\Users\Moas\source\repos\PilatesPro\Commons\bin\Debug\netcoreapp3.1\Commons.deps.json
 C:\Users\Moas\source\repos\PilatesPro\Commons\bin\Debug\netcoreapp3.1\Commons.dll
 C:\Users\Moas\source\repos\PilatesPro\Commons\bin\Debug\netcoreapp3.1\Commons.pdb
-C:\Users\Moas\source\repos\PilatesPro\Commons\obj\Debug\netcoreapp3.1\Commons.csproj.AssemblyReference.cache
+C:\Users\Moas\source\repos\PilatesPro\Commons\obj\Debug\netcoreapp3.1\Commons.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\Moas\source\repos\PilatesPro\Commons\obj\Debug\netcoreapp3.1\Commons.AssemblyInfoInputs.cache
 C:\Users\Moas\source\repos\PilatesPro\Commons\obj\Debug\netcoreapp3.1\Commons.AssemblyInfo.cs
 C:\Users\Moas\source\repos\PilatesPro\Commons\obj\Debug\netcoreapp3.1\Commons.csproj.CoreCompileInputs.cache
+C:\Users\Moas\source\repos\PilatesPro\Commons\obj\Debug\netcoreapp3.1\Commons.sourcelink.json
 C:\Users\Moas\source\repos\PilatesPro\Commons\obj\Debug\netcoreapp3.1\Commons.dll
 C:\Users\Moas\source\repos\PilatesPro\Commons\obj\Debug\netcoreapp3.1\Commons.pdb

@@ -7,8 +7,10 @@ C:\Users\Moas\source\repos\PilatesPro\ServicesInterface\obj\Release\netcoreapp3.
 C:\Users\Moas\source\repos\PilatesPro\ServicesInterface\obj\Release\netcoreapp3.1\ServicesInterface.AssemblyInfoInputs.cache
 C:\Users\Moas\source\repos\PilatesPro\ServicesInterface\obj\Release\netcoreapp3.1\ServicesInterface.AssemblyInfo.cs
 C:\Users\Moas\source\repos\PilatesPro\ServicesInterface\obj\Release\netcoreapp3.1\ServicesInterface.csproj.CoreCompileInputs.cache
-C:\Users\Moas\source\repos\PilatesPro\ServicesInterface\obj\Release\netcoreapp3.1\ServicesInterface.csproj.CopyComplete
 C:\Users\Moas\source\repos\PilatesPro\ServicesInterface\obj\Release\netcoreapp3.1\ServicesInterface.dll
 C:\Users\Moas\source\repos\PilatesPro\ServicesInterface\obj\Release\netcoreapp3.1\ServicesInterface.pdb
 C:\Users\Moas\source\repos\PilatesPro\ServicesInterface\bin\Release\netcoreapp3.1\Domain.dll
 C:\Users\Moas\source\repos\PilatesPro\ServicesInterface\bin\Release\netcoreapp3.1\Domain.pdb
+C:\Users\Moas\source\repos\PilatesPro\ServicesInterface\obj\Release\netcoreapp3.1\ServicesInterface.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Moas\source\repos\PilatesPro\ServicesInterface\obj\Release\netcoreapp3.1\ServicesInterface.sourcelink.json
+C:\Users\Moas\source\repos\PilatesPro\ServicesInterface\obj\Release\netcoreapp3.1\Services.8139C1F2.Up2Date

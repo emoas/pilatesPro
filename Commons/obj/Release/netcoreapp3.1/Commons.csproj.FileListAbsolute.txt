@@ -7,3 +7,5 @@ C:\Users\Moas\source\repos\PilatesPro\Commons\obj\Release\netcoreapp3.1\Commons.
 C:\Users\Moas\source\repos\PilatesPro\Commons\obj\Release\netcoreapp3.1\Commons.csproj.CoreCompileInputs.cache
 C:\Users\Moas\source\repos\PilatesPro\Commons\obj\Release\netcoreapp3.1\Commons.dll
 C:\Users\Moas\source\repos\PilatesPro\Commons\obj\Release\netcoreapp3.1\Commons.pdb
+C:\Users\Moas\source\repos\PilatesPro\Commons\obj\Release\netcoreapp3.1\Commons.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Moas\source\repos\PilatesPro\Commons\obj\Release\netcoreapp3.1\Commons.sourcelink.json

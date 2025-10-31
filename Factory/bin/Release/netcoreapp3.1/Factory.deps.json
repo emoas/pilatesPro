@@ -1313,12 +1313,18 @@
           "SessionInterface": "1.0.0"
         },
         "runtime": {
-          "BusinessLogic.dll": {}
+          "BusinessLogic.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       },
       "Commons/1.0.0": {
         "runtime": {
-          "Commons.dll": {}
+          "Commons.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       },
       "DataAccess/1.0.0": {
@@ -1335,7 +1341,10 @@
           "Pomelo.EntityFrameworkCore.MySql": "5.0.1"
         },
         "runtime": {
-          "DataAccess.dll": {}
+          "DataAccess.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       },
       "DataAccessInterface/1.0.0": {
@@ -1343,12 +1352,18 @@
           "Domain": "1.0.0"
         },
         "runtime": {
-          "DataAccessInterface.dll": {}
+          "DataAccessInterface.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       },
       "Domain/1.0.0": {
         "runtime": {
-          "Domain.dll": {}
+          "Domain.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       },
       "Dto/1.0.0": {
@@ -1356,7 +1371,10 @@
           "Domain": "1.0.0"
         },
         "runtime": {
-          "Dto.dll": {}
+          "Dto.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       },
       "Mapper/1.0.0": {
@@ -1366,7 +1384,10 @@
           "Dto": "1.0.0"
         },
         "runtime": {
-          "Mapper.dll": {}
+          "Mapper.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       },
       "Services/1.0.0": {
@@ -1379,7 +1400,10 @@
           "ServicesInterface": "1.0.0"
         },
         "runtime": {
-          "Services.dll": {}
+          "Services.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       },
       "ServicesInterface/1.0.0": {
@@ -1387,7 +1411,10 @@
           "Dto": "1.0.0"
         },
         "runtime": {
-          "ServicesInterface.dll": {}
+          "ServicesInterface.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       },
       "SessionInterface/1.0.0": {
@@ -1395,7 +1422,10 @@
           "Dto": "1.0.0"
         },
         "runtime": {
-          "SessionInterface.dll": {}
+          "SessionInterface.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       }
     }

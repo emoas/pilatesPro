@@ -14,11 +14,13 @@ namespace Domain
         public string Celular { get; set; }
         public string Ciudad { get; set; }
         public string EmeregenciaMovil { get; set; }
+        public string Instagram { get; set; }
         public string ContactoEmergencia { get; set; }
         public string TelefonoContacto { get; set; }
         public ICollection<Patologia> PatologíasQuePresenta { get; set; }
         public string Observaciones { get; set; }
         public bool Activo { get; set; }
+        public DateTime? FechaUltimaActivacion { get; set; }
         //public enum estado { NORMAL, MANTENIMIENTO, SUSPENDIDO }
         //public estado Estado { get; set; }
         public DateTime FechaNacimiento { get; set; }
@@ -30,7 +32,7 @@ namespace Domain
         public int CuposPendientes { get; set; }
         public ICollection<Falta> Faltas { get; set; } = new List<Falta>();
         public ICollection<CupoPendiente> Cupos { get; set; } = new List<CupoPendiente>();
-
+        public ICollection<LicenciaAlumno> Licencia { get; set; } = new List<LicenciaAlumno>();
         public Alumno()
         {
             base.Rol = rol.ALUMNO;

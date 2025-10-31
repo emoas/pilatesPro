@@ -13,8 +13,10 @@ namespace ServicesInterface
             ActividadDTO Update(ActividadDTO actividadDTOUpdate);
             void Remove(int actividadId);
             ActividadDTO GetId(int actividadId);
+            ActividadDTO GetLightId(int actividadId);
             IEnumerable<ProfesorLightDTO> GetProfesores(int actividadId);
             ActividadDTO Activar(int actividadId, bool activar);
             IEnumerable<ActividadDTO> GetPorLocal(int localId);
+            IEnumerable<AgendaDTO> GetClases(int actividadId, DateTime desde, DateTime hasta);
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Dto.Alumnos;
+using System;
 using System.Collections.Generic;
 
 namespace Dto
@@ -12,11 +13,14 @@ namespace Dto
         public string Celular { get; set; }
         public string Ciudad { get; set; }
         public string EmeregenciaMovil { get; set; }
+        public string Instagram { get; set; }
         public string ContactoEmergencia { get; set; }
         public string TelefonoContacto { get; set; }
         public ICollection<PatologiaDTO> PatologíasQuePresenta { get; set; }
         public string Observaciones { get; set; }
         public bool Activo { get; set; }
+        public DateTime? FechaUltimaActivacion { get; set; }
+
         //public enum estado { NORMAL, MANTENIMIENTO, SUSPENDIDO }
         //public estado Estado { get; set; }
         public DateTime FechaNacimiento { get; set; }
@@ -26,6 +30,7 @@ namespace Dto
         public ICollection<ClaseFijaDTO> ClasesFijas { get; set; }
         public ICollection<ClaseDTO> Clases { get; set; }
         public int CuposPendientes { get; set; }
+        public ICollection<LicenciaAlumnoDTO> Licencia { get; set; }
         public AlumnoDTO()
         {
         }

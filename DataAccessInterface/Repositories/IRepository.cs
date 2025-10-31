@@ -17,7 +17,7 @@ namespace DataAccessInterface.Repositories
 
         IQueryable<T> List();
 
-        IQueryable<T> IncludeAll(params string[] list);
+        IQueryable<T> IncludeAll(params string[] includes);
 
     }
 }

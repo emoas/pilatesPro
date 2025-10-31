@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Domain.Alumnos;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -13,6 +14,7 @@ namespace Dto.Reports
         public string ClaseNombre { get; set; }
         public string ActividadNombre { get; set; }
         public string LocalNombre { get; set; }
+        public AlumnoClase.estado Estado { get; set; }
         public DateTime HorarioInicio { get; set; }
         public DateTime HorarioFin { get; set; }
 

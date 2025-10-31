@@ -25,6 +25,8 @@ C:\Users\Moas\source\repos\PilatesPro\Factory\obj\Release\netcoreapp3.1\Factory.
 C:\Users\Moas\source\repos\PilatesPro\Factory\obj\Release\netcoreapp3.1\Factory.AssemblyInfoInputs.cache
 C:\Users\Moas\source\repos\PilatesPro\Factory\obj\Release\netcoreapp3.1\Factory.AssemblyInfo.cs
 C:\Users\Moas\source\repos\PilatesPro\Factory\obj\Release\netcoreapp3.1\Factory.csproj.CoreCompileInputs.cache
-C:\Users\Moas\source\repos\PilatesPro\Factory\obj\Release\netcoreapp3.1\Factory.csproj.CopyComplete
 C:\Users\Moas\source\repos\PilatesPro\Factory\obj\Release\netcoreapp3.1\Factory.dll
 C:\Users\Moas\source\repos\PilatesPro\Factory\obj\Release\netcoreapp3.1\Factory.pdb
+C:\Users\Moas\source\repos\PilatesPro\Factory\obj\Release\netcoreapp3.1\Factory.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Moas\source\repos\PilatesPro\Factory\obj\Release\netcoreapp3.1\Factory.sourcelink.json
+C:\Users\Moas\source\repos\PilatesPro\Factory\obj\Release\netcoreapp3.1\Factory.csproj.Up2Date

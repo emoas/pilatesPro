@@ -275,6 +275,27 @@ namespace WebApi.Controllers
                 return StatusCode(500, "Algo salió mal.");
             }
         }
+        [HttpGet("cancelaciones/{idAlumno}/{fecha}")]
+        public IActionResult GetCancelaciones([FromRoute] int idAlumno, DateTime fecha)
+        {
+            try
+            {
+                var total = this.alumnoService.CountCancelaciones(idAlumno, fecha);
+                return Ok(total);
+            }
+            catch (System.ArgumentException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (ValidationException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (System.Exception)
+            {
+                return StatusCode(500, "Algo salió mal.");
+            }
+        }
 
         [HttpDelete("{alumnoId}")]
         public IActionResult Desactivate(int alumnoId)
@@ -337,17 +358,38 @@ namespace WebApi.Controllers
             }
             catch (System.Exception exception)
             {
-                return StatusCode(500, "Algo salió mal.");
+                return StatusCode(500, exception.Message);
             }
         }
 
-        [HttpDelete("{alumnoId}/cancelmanual/{claseId}")]
-        public IActionResult CancelReservaManual([FromRoute] int alumnoId, int claseId)
+        [HttpDelete("cancelmanual/{idAlumnoClase}/{addFalta}")]
+        public IActionResult CancelReservaManual([FromRoute] int idAlumnoClase,bool addFalta)
         {
             try
             {
-                this.alumnoService.CancelReservaManual(alumnoId, claseId);
+                this.alumnoService.CancelReservaManual(idAlumnoClase, addFalta);
                 return Ok("Se cancelo reserva.");
+            }
+            catch (System.ArgumentException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (ValidationException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (System.Exception exception)
+            {
+                return StatusCode(500, "Algo salió mal.");
+            }
+        }
+        [HttpDelete("deleteCancel/{idAlumnoClase}/{ajustarEliminadas}")]
+        public IActionResult DeleteCancelAlumnoClase([FromRoute] int idAlumnoClase, bool ajustarEliminadas)
+        {
+            try
+            {
+                this.alumnoService.DeleteCancelAlumnoClase(idAlumnoClase, ajustarEliminadas);
+                return Ok("Se elimnio la cancelación.");
             }
             catch (System.ArgumentException exception)
             {
@@ -449,12 +491,12 @@ namespace WebApi.Controllers
                 return StatusCode(500, "Algo salió mal.");
             }
         }
-        [HttpDelete("delFalta/{idAlumno}/{claseId}")]
-        public IActionResult DeleteFalta([FromRoute] int idAlumno, int claseId)
+        [HttpDelete("delFalta/{idAlumnoClase}")]
+        public IActionResult DeleteFalta([FromRoute] int idAlumnoClase)
         {
             try
             {
-                this.alumnoService.QuitarFalta(idAlumno, claseId);
+                this.alumnoService.QuitarFalta(idAlumnoClase);
                 return Ok("Se elimino correctamente la falta");
             }
             catch (System.ArgumentException exception)
@@ -469,6 +511,98 @@ namespace WebApi.Controllers
             {
                 return StatusCode(500, "Algo salió mal.(" + exception.Message + ")");
             }
+        }
+        [HttpPost("licencia")]
+        public IActionResult AddLicencia([FromBody] LicenciaAlumnoDTO licenciaDTO)
+        {
+            try
+            {
+                this.alumnoService.AgregarLicencia(licenciaDTO);
+                return Ok("Se agrego correctamente");
+            }
+            catch (System.ArgumentException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (ValidationException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (System.Exception exception)
+            {
+                return StatusCode(500, "Algo salió mal.(" + exception.Message + ")");
+            }
+        }
+        [HttpGet("licencia/{idAlumno}")]
+        public IActionResult GetLicencia([FromRoute] int idAlumno)
+        {
+            try
+            {
+                var alumno=this.alumnoService.GetLicenciaAlumno(idAlumno);
+                return Ok(alumno);
+            }
+            catch (System.ArgumentException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (ValidationException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (System.Exception exception)
+            {
+                return StatusCode(500, "Algo salió mal.(" + exception.Message + ")");
+            }
+        }
+        [HttpGet("licencia/{idAlumno}/{fecha}")]
+        public IActionResult GetEstaDeLicencia([FromRoute] int idAlumno, DateTime fecha)
+        {
+            try
+            {
+                var esta = this.alumnoService.EstaDeLicencia(idAlumno,fecha);
+                return Ok(esta);
+            }
+            catch (System.ArgumentException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (ValidationException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (System.Exception exception)
+            {
+                return StatusCode(500, "Algo salió mal.(" + exception.Message + ")");
+            }
+        }
+
+        [HttpDelete("licencia/{idLicencia}")]
+        public IActionResult DeleteLicencia([FromRoute] int idLicencia)
+        {
+            try
+            {
+                this.alumnoService.EliminarLicencia(idLicencia);
+                return Ok("Se elimino correctamente la licencia");
+            }
+            catch (System.ArgumentException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (ValidationException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (System.Exception exception)
+            {
+                return StatusCode(500, "Algo salió mal.(" + exception.Message + ")");
+            }
+        }
+        [HttpPost("deshabilitar-usuarios-inactivos")]
+        public async Task<IActionResult> DeshabilitarUsuariosInactivos()
+        {
+            var resultado = await alumnoService.DeshabilitarUsuariosInactivosAsync();
+
+            return Ok(new { mensaje = "Usuarios deshabilitados", cantidad = resultado.Count, usuarios = resultado });
         }
     }
 }

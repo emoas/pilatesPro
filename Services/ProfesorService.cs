@@ -17,13 +17,15 @@ namespace Services
         private IRepository<Patologia> patologiaRepository;
         private IRepository<Actividad> actividadRepository;
         private IRepository<Local> localRepository;
+        private IRepository<Agenda> agendaRepository;
         private IMapper mapper;
-        public ProfesorService(IMapper mapper, IProfeRepository profeRepository, IRepository<Patologia> patologiaRepository, IRepository<Local> localRepository, IRepository<Actividad> actividadRepository)
+        public ProfesorService(IMapper mapper, IProfeRepository profeRepository, IRepository<Patologia> patologiaRepository, IRepository<Local> localRepository, IRepository<Actividad> actividadRepository, IRepository<Agenda> agendaRepository)
         {
             this.profeRepository = profeRepository;
             this.patologiaRepository = patologiaRepository;
             this.localRepository = localRepository;
             this.actividadRepository = actividadRepository;
+            this.agendaRepository = agendaRepository;
             this.mapper = mapper;
 
         }
@@ -33,6 +35,7 @@ namespace Services
             {
                 Name = profeDTO.Name,
                 Apellido = profeDTO.Apellido,
+                Sobrenombre=profeDTO.Sobrenombre,
                 Email = profeDTO.Email,
                 Cedula = profeDTO.Cedula,
                 Direccion = profeDTO.Direccion,
@@ -92,10 +95,21 @@ namespace Services
 
         public IEnumerable<ProfesorDTO> GetAll()
         {
-            var profesores=profeRepository.getProfesores()
+            var profesores=profeRepository.getProfesores().Where(p => p.Rol==User.rol.PROFE)
                                 .OrderByDescending(p => p.Activo)
                                 .ToList();
             return this.mapper.Map<IEnumerable<ProfesorDTO>>(profesores);
+        }
+
+        public IEnumerable<AgendaDTO> GetClases(int profeId, DateTime desde, DateTime hasta)
+        {
+            var agendas = this.agendaRepository.IncludeAll("Clase.Profesor").Where(
+               a => a.Clase.Profesor.Id == profeId
+               && a.Clase.HorarioInicio.Date >= desde.Date
+               && a.Clase.HorarioInicio.Date <= hasta.Date)
+                .OrderBy(a => a.Clase.HorarioInicio)
+               .ToList();
+            return this.mapper.Map<IEnumerable<AgendaDTO>>(agendas);
         }
 
         public ProfesorDTO GetId(int profeId)
@@ -179,6 +193,7 @@ namespace Services
 
             profeToUpdate.Name = profesorDTOUpdate.Name;
             profeToUpdate.Apellido = profesorDTOUpdate.Apellido;
+            profeToUpdate.Sobrenombre = profesorDTOUpdate.Sobrenombre;
             profeToUpdate.Cedula = profesorDTOUpdate.Cedula;
             profeToUpdate.Direccion = profesorDTOUpdate.Direccion;
             profeToUpdate.Celular = profesorDTOUpdate.Celular;

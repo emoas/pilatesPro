@@ -20,10 +20,11 @@ namespace Services
         private IRepository<Local> localRepository;
         private IRepository<Clase> claseRepository;
         private IRepository<AlumnoClase> alumnoClaseRepository;
+        private IAlumnoRepository alumnoRepository;
         private IMapper mapper;
         private IAgendaService agendaService;
         private IAlumnoService alumnoService;
-        public ClaseService(IMapper mapper, IAlumnoService alumnoService, IRepository<AlumnoClase> alumnoClaseRepository, IActividadRepository actividadRepository, IProfeRepository profeRepository, IRepository<Local> localRepository, IRepository<Clase> claseRepository, IAgendaService agendaService)
+        public ClaseService(IMapper mapper, IAlumnoService alumnoService, IAlumnoRepository alumnoRepository, IRepository<AlumnoClase> alumnoClaseRepository, IActividadRepository actividadRepository, IProfeRepository profeRepository, IRepository<Local> localRepository, IRepository<Clase> claseRepository, IAgendaService agendaService)
         {
             this.actividadRepository = actividadRepository;
             this.profeRepository = profeRepository;
@@ -32,6 +33,7 @@ namespace Services
             this.agendaService = agendaService;
             this.alumnoService = alumnoService;
             this.alumnoClaseRepository = alumnoClaseRepository;
+            this.alumnoRepository = alumnoRepository;
             this.mapper = mapper;
         }
         public ClaseDTO Add(int actividadId, ClaseDTO claseDTO)
@@ -72,16 +74,65 @@ namespace Services
             return this.mapper.Map<IEnumerable<ClaseDTO>>(clases);
         }
 
-        public IEnumerable<ClaseDTO> ActividadesParaReservar(int alumnoId,int actividadId, DateTime fechaDesde, DateTime fechaTo)
-        {
-            var clases = this.claseRepository.IncludeAll("Local", "Actividad", "ClasesAlumno","Profesor")
-                .Where(c => c.ActividadId == actividadId
-                 && c.Activo == true
-                 && c.HorarioInicio >= fechaDesde
-                 && c.HorarioFin <= fechaTo
-                 && !c.ClasesAlumno.Any(ca => ca.AlumnoId == alumnoId && ca.Estado==AlumnoClase.estado.CONFIRMADA)) // Excluir clases donde el alumno ya está registrado
-     .OrderBy(c => c.HorarioInicio);
-            return this.mapper.Map<IEnumerable<ClaseDTO>>(clases);
+        public IEnumerable<ClaseLightDTO> ActividadesParaReservar(
+            int alumnoId,
+            DateTime fechaDesde,
+            DateTime fechaTo,
+            int? actividadId = null,
+            int? diaId = null,
+            int? horaId = null){
+
+            var desde = fechaDesde.Date;
+            var hasta = fechaTo.Date.AddDays(1).AddTicks(-1);
+
+            // 1) IDs de actividades permitidas por el plan del alumno
+            var actividadesPermitidas = this.alumnoRepository.IncludeAll("Plan")
+                .Where(a => a.Id == alumnoId && a.PlanId != null)
+                .SelectMany(a => a.Plan.Actividades.Select(x => x.Id))
+                .Distinct()
+                .ToList();
+
+            if (actividadesPermitidas.Count == 0)
+                return Enumerable.Empty<ClaseLightDTO>();
+
+            // 2) Query base filtrada SOLO por las actividades del plan
+            var query = this.claseRepository.List()
+                .Where(c =>
+                    actividadesPermitidas.Contains(c.ActividadId) &&          // <-- clave
+                    c.HorarioInicio >= desde &&
+                    c.HorarioFin <= hasta &&
+                    !c.ClasesAlumno.Any(ca =>
+                        ca.AlumnoId == alumnoId &&
+                        ca.Estado == AlumnoClase.estado.CONFIRMADA));
+
+            // 3) Filtros extra
+            if (actividadId.HasValue)
+                query = query.Where(c => c.ActividadId == actividadId.Value);
+
+            if (horaId.HasValue)
+                query = query.Where(c => c.HorarioInicio.Hour == horaId.Value);
+
+            // 4) Proyección liviana (sin Include)
+            var list = query
+                .Select(c => new ClaseLightDTO
+                {
+                    Id = c.Id,
+                    HorarioInicio = c.HorarioInicio,
+                    Activo = c.Activo,
+                    CuposTotales = c.CuposTotales,
+                    CuposOtorgados = c.CuposOtorgados,
+                    CuposConfirmados = c.CuposConfirmados,
+                    Actividad = new ActividadMini { Nombre = c.Actividad.Nombre },
+                    Profesor = new ProfesorMini { Id = c.Profesor.Id, Sobrenombre = c.Profesor.Sobrenombre },
+                    Local = new LocalMini { Nombre = c.Local.Nombre }
+                })
+                .OrderBy(c => c.HorarioInicio)
+                .ToList();
+
+            if (diaId.HasValue)
+                list = list.Where(c => (int)c.HorarioInicio.DayOfWeek == diaId.Value).ToList();
+
+            return list;
         }
 
         public void CopyTo(int localId, DateTime fechaDesde, DateTime fechaTo)
@@ -148,29 +199,29 @@ namespace Services
         public ClaseDTO Update(ClaseDTO claseDTOUpdate)
         {
             Clase clase = this.claseRepository.IncludeAll("ClasesAlumno", "Actividad", "Local", "Profesor", "Agenda").FirstOrDefault(c => c.Id == claseDTOUpdate.Id);
-            var actividad = this.actividadRepository.IncludeAll("Clases").FirstOrDefault(a => a.Id == clase.ActividadId);
-            actividad.Clases.Remove(clase);
-            this.actividadRepository.Update(actividad);
-            claseDTOUpdate.CuposOtorgados = 0;
-            claseDTOUpdate.ClasesAlumno = new List<AlumnoClaseDTO>();
-            var claseAux = this.Add(clase.ActividadId, claseDTOUpdate);
-            claseAux.ClasesAlumno = new List<AlumnoClaseDTO>();
-            foreach (AlumnoClase alumnoClase in clase.ClasesAlumno)
+            var profe = this.profeRepository.getProfesores().FirstOrDefault(p => p.Id == claseDTOUpdate.Profesor.Id);
+            clase.Profesor = profe;
+            clase.CuposTotales = claseDTOUpdate.CuposTotales;
+            this.claseRepository.Update(clase);
+            return this.mapper.Map<ClaseDTO>(clase);
+        }
+
+        public void Desactivate(int claseId)
+        {
+            Clase clase = (Clase)this.claseRepository.List().FirstOrDefault(c => c.Id == claseId);
+            if (clase == null)
             {
-                if (alumnoClase.Estado == AlumnoClase.estado.CONFIRMADA)
-                {
-                    try
-                    {
-                        this.alumnoService.agregarAlumnoAClase(alumnoClase.AlumnoId, claseAux.Id, alumnoClase.Tipo);
-                    }
-                    catch (Exception ex)
-                    {
-                        // Manejar la excepción, por ejemplo, registrarla
-                        Console.WriteLine($"Error: {ex.Message}");
-                    }
-                }
+                throw new Exception("No existe la clase seleccionada.");
             }
-            return claseAux;
+            if (clase.Activo)
+            {
+                clase.Activo = false;
+            }
+            else
+            {
+                clase.Activo = true;
+            }
+            this.claseRepository.Update(clase);
         }
     }
 }

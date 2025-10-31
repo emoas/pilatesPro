@@ -15,6 +15,8 @@ C:\Users\Moas\source\repos\PilatesPro\BusinessLogic\obj\Release\netcoreapp3.1\Bu
 C:\Users\Moas\source\repos\PilatesPro\BusinessLogic\obj\Release\netcoreapp3.1\BusinessLogic.AssemblyInfoInputs.cache
 C:\Users\Moas\source\repos\PilatesPro\BusinessLogic\obj\Release\netcoreapp3.1\BusinessLogic.AssemblyInfo.cs
 C:\Users\Moas\source\repos\PilatesPro\BusinessLogic\obj\Release\netcoreapp3.1\BusinessLogic.csproj.CoreCompileInputs.cache
-C:\Users\Moas\source\repos\PilatesPro\BusinessLogic\obj\Release\netcoreapp3.1\BusinessLogic.csproj.CopyComplete
 C:\Users\Moas\source\repos\PilatesPro\BusinessLogic\obj\Release\netcoreapp3.1\BusinessLogic.dll
 C:\Users\Moas\source\repos\PilatesPro\BusinessLogic\obj\Release\netcoreapp3.1\BusinessLogic.pdb
+C:\Users\Moas\source\repos\PilatesPro\BusinessLogic\obj\Release\netcoreapp3.1\BusinessLogic.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Moas\source\repos\PilatesPro\BusinessLogic\obj\Release\netcoreapp3.1\BusinessLogic.sourcelink.json
+C:\Users\Moas\source\repos\PilatesPro\BusinessLogic\obj\Release\netcoreapp3.1\Business.CF5D6E35.Up2Date

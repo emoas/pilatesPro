@@ -124,12 +124,26 @@ namespace WebApi.Controllers
             }
         }
 
-        [HttpGet("between/{alumnoId}/{actividadId}/{fechaDesde}/{fechaTo}")]
-        public IActionResult ActividadesParaReservar([FromRoute] int alumnoId, int actividadId, DateTime fechaDesde, DateTime fechaTo)
+        [HttpGet("parareservar/{alumnoId}/{fechaDesde}/{fechaTo}")]
+        public IActionResult ActividadesParaReservar(
+            [FromRoute] int alumnoId,
+            [FromRoute] DateTime fechaDesde,
+            [FromRoute] DateTime fechaTo,
+            [FromQuery] int? actividadId,
+            [FromQuery] int? diaId,
+            [FromQuery] int? horaId)
         {
             try
             {
-                var clases = this.claseService.ActividadesParaReservar(alumnoId,actividadId, fechaDesde, fechaTo);
+                var clases = this.claseService.ActividadesParaReservar(
+                    alumnoId,
+                    fechaDesde,
+                    fechaTo,
+                    actividadId,
+                    diaId,
+                    horaId
+                );
+
                 return Ok(clases);
             }
             catch (System.ArgumentException exception)
@@ -145,6 +159,28 @@ namespace WebApi.Controllers
                 return StatusCode(500, "Algo salió mal.(" + exception.Message + ")");
             }
         }
+        [HttpPut("desactivate/{claseId}")]
+        public IActionResult Desactivate([FromRoute] int claseId)
+        {
+            try
+            {
+                this.claseService.Desactivate(claseId);
+                return Ok();
+            }
+            catch (System.ArgumentException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (ValidationException exception)
+            {
+                return BadRequest(exception.Message);
+            }
+            catch (System.Exception exception)
+            {
+                return StatusCode(500, exception.Message);
+            }
+        }
+
         [HttpPut]
         public IActionResult Put([FromBody] ClaseDTO claseDTOUpdate)
         {

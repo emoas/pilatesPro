@@ -11,7 +11,9 @@ C:\Users\Moas\source\repos\PilatesPro\DataAccess\obj\Release\netcoreapp3.1\DataA
 C:\Users\Moas\source\repos\PilatesPro\DataAccess\obj\Release\netcoreapp3.1\DataAccess.AssemblyInfoInputs.cache
 C:\Users\Moas\source\repos\PilatesPro\DataAccess\obj\Release\netcoreapp3.1\DataAccess.AssemblyInfo.cs
 C:\Users\Moas\source\repos\PilatesPro\DataAccess\obj\Release\netcoreapp3.1\DataAccess.csproj.CoreCompileInputs.cache
-C:\Users\Moas\source\repos\PilatesPro\DataAccess\obj\Release\netcoreapp3.1\DataAccess.csproj.CopyComplete
 C:\Users\Moas\source\repos\PilatesPro\DataAccess\obj\Release\netcoreapp3.1\DataAccess.dll
 C:\Users\Moas\source\repos\PilatesPro\DataAccess\obj\Release\netcoreapp3.1\DataAccess.pdb
 C:\Users\Moas\source\repos\PilatesPro\DataAccess\obj\Release\netcoreapp3.1\DataAccess.genruntimeconfig.cache
+C:\Users\Moas\source\repos\PilatesPro\DataAccess\obj\Release\netcoreapp3.1\DataAccess.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Moas\source\repos\PilatesPro\DataAccess\obj\Release\netcoreapp3.1\DataAccess.sourcelink.json
+C:\Users\Moas\source\repos\PilatesPro\DataAccess\obj\Release\netcoreapp3.1\DataAccess.csproj.Up2Date

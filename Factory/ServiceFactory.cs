@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Services;
 using ServicesInterface;
 using SessionInterface.Sessions;
+using System.Net.Http;
 
 namespace Factory
 {
@@ -51,6 +52,7 @@ namespace Factory
             services.AddScoped<IClaseRepository, ClaseRepository>();
             services.AddScoped<IRepository<ClaseFija>, Repository<ClaseFija>>();
             services.AddScoped<IRepository<Falta>, Repository<Falta>>();
+            services.AddScoped<IRepository<LicenciaAlumno>, Repository<LicenciaAlumno>>();
             services.AddScoped<IRepository<CupoPendiente>, Repository<CupoPendiente>>();
             services.AddScoped<IRepository<Logs_AddAlumnoClase>, Repository<Logs_AddAlumnoClase>>();
         }
@@ -71,6 +73,7 @@ namespace Factory
             services.AddScoped<IDashBoardService, DashBoardService>();
             services.AddScoped<IReportService, ReportService>();
             services.AddScoped<ILogService, LogService>();
+            services.AddScoped<HttpClient>();
 
         }
 

@@ -114,20 +114,22 @@ namespace Services
 
             // 4) Proyección liviana (sin Include)
             var list = query
-                .Select(c => new ClaseLightDTO
-                {
-                    Id = c.Id,
-                    HorarioInicio = c.HorarioInicio,
-                    Activo = c.Activo,
-                    CuposTotales = c.CuposTotales,
-                    CuposOtorgados = c.CuposOtorgados,
-                    CuposConfirmados = c.CuposConfirmados,
-                    Actividad = new ActividadMini { Nombre = c.Actividad.Nombre },
-                    Profesor = new ProfesorMini { Id = c.Profesor.Id, Sobrenombre = c.Profesor.Sobrenombre },
-                    Local = new LocalMini { Nombre = c.Local.Nombre }
-                })
-                .OrderBy(c => c.HorarioInicio)
-                .ToList();
+            .Select(c => new ClaseLightDTO
+            {
+                Id = c.Id,
+                HorarioInicio = c.HorarioInicio,
+                Activo = c.Activo,
+                CuposTotales = c.CuposTotales,
+                CuposOtorgados = c.CuposOtorgados,
+                // Calcular el count directamente en SQL:
+                CuposConfirmados = c.ClasesAlumno.Count(ca => ca.Estado == AlumnoClase.estado.CONFIRMADA),
+
+                Actividad = new ActividadMini { Nombre = c.Actividad.Nombre },
+                Profesor = new ProfesorMini { Id = c.Profesor.Id, Sobrenombre = c.Profesor.Sobrenombre },
+                Local = new LocalMini { Nombre = c.Local.Nombre }
+            })
+            .OrderBy(c => c.HorarioInicio)
+            .ToList();
 
             if (diaId.HasValue)
                 list = list.Where(c => (int)c.HorarioInicio.DayOfWeek == diaId.Value).ToList();

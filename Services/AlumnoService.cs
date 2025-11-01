@@ -198,14 +198,17 @@ namespace Services
         }
         public ClaseFijaDTO AddClaseFija(int idAlumno, ClaseFijaDTO claseFijaDTO)
         {
+            Alumno alumnoToUpdate = this.alumnoRepository.IncludeAll("ClasesFijas", "Plan").FirstOrDefault(a => a.Id == idAlumno);
+
             ClaseFija claseFija = new ClaseFija
             {
                 ActividadId = claseFijaDTO.ActividadId,
                 LocalId = claseFijaDTO.LocalId,
                 Dia = claseFijaDTO.Dia,
                 Hora = claseFijaDTO.Hora,
+                Tipo = (ClaseFija.tipo)(int)alumnoToUpdate.Plan.Tipo
             };
-            Alumno alumnoToUpdate = this.alumnoRepository.IncludeAll("ClasesFijas", "Plan").FirstOrDefault(a => a.Id == idAlumno);
+            
             if (puedeAgregarFija(alumnoToUpdate, claseFija))
             {
                 alumnoToUpdate.ClasesFijas.Add(claseFija);
@@ -230,6 +233,8 @@ namespace Services
             }
             else if (alumno.Plan.Tipo == Plan.tipo.PASE_LIBRE)
             {
+                if(alumno.Plan.CantidadFijas > 0 && alumno.ClasesFijas.Count() < alumno.Plan.CantidadFijas)
+                    puede = true;
             }
             else if (alumno.Plan.Tipo == Plan.tipo.TU_PASE)
             {
@@ -238,18 +243,21 @@ namespace Services
         }
 
         public ClaseFijaDTO UpdateClaseFija(int id, ClaseFijaDTO claseFijaDTO)
-        {
+        {           
             ClaseFija claseFijaUpdate = this.claseFijaRepository.IncludeAll("Alumno").FirstOrDefault(c => c.Id == id);
             if (claseFijaUpdate == null)
             {
                 throw new Exception("No existe la clase fija seleccionada.");
             }
+            Alumno alumno = this.alumnoRepository.IncludeAll("Plan").FirstOrDefault(a => a.Id == claseFijaUpdate.AlumnoId);
             //elimino al alumno de la clase fija
             removeClasesFijasAlumno(id);
             claseFijaUpdate.ActividadId = claseFijaDTO.ActividadId;
             claseFijaUpdate.LocalId = claseFijaDTO.LocalId;
             claseFijaUpdate.Dia = claseFijaDTO.Dia;
             claseFijaUpdate.Hora = claseFijaDTO.Hora;
+            claseFijaUpdate.Tipo = (ClaseFija.tipo)(int)alumno.Plan.Tipo;
+
             this.claseFijaRepository.Update(claseFijaUpdate);
             if (claseFijaUpdate.Alumno.Activo)
                 addClasesFijasAlumno(claseFijaUpdate.AlumnoId, claseFijaDTO);

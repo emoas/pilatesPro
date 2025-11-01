@@ -14,5 +14,7 @@ namespace Dto
         public string Hora { get; set; }
         public int AlumnoId { get; set; }
         public AlumnoDTO Alumno { get; set; }
+        public enum tipo { SEMANAL, MENSUAL, ANUAL, PASE_LIBRE, TU_PASE }
+        public tipo Tipo { get; set; }
     }
 }

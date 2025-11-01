@@ -3,14 +3,16 @@ using System;
 using DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(PilatesContext))]
-    partial class PilatesContextModelSnapshot : ModelSnapshot
+    [Migration("20251101203346_cantFijasPlan")]
+    partial class cantFijasPlan
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -331,9 +333,6 @@ namespace DataAccess.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<int>("LocalId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Tipo")
                         .HasColumnType("int");
 
                     b.HasKey("Id");

@@ -17,6 +17,7 @@ namespace Domain
         public int? VecesxMes { get; set; }
         public int? CantidadFaltas { get; set; }
         public int? CantidadCancelaciones { get; set; }
+        public int? CantidadFijas { get; set; }
         public enum ReglaVisualizacionAgenda
         {
             PorDias,

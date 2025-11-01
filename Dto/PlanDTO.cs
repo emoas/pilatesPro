@@ -18,6 +18,7 @@ namespace Dto
         public int? VecesxMes { get; set; }
         public int? CantidadFaltas { get; set; }
         public int? CantidadCancelaciones { get; set; }
+        public int? CantidadFijas { get; set; }
         public ReglaVisualizacionAgenda ReglaAgenda { get; set; } = ReglaVisualizacionAgenda.HastaSabadoSemanaSiguiente;
         public int? DiasVisualizacionAgenda { get; set; }
         public ICollection<AlumnoDTO> Alumnos { get; set; }

@@ -83,8 +83,9 @@ namespace Services
 
         public int GetReservasWeb(int mes)
         {
+            int year = DateTime.Now.Year;
             return this.alumnoClaseRepository.List()
-                .Where(ac => ac.Fecha.HasValue && ac.Fecha.Value.Month == mes && ac.Tipo == AlumnoClase.tipo.WEB)
+                .Where(ac => ac.Fecha.HasValue && ac.Fecha.Value.Month == mes && ac.Fecha.Value.Year == year && ac.Tipo == AlumnoClase.tipo.WEB)
                 .Count();
         }
     }

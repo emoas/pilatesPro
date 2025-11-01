@@ -40,7 +40,8 @@ namespace Services
             };
 
             plan.CantidadCancelaciones = planDTO.CantidadCancelaciones ?? 0;
-            plan.CantidadFaltas = planDTO.CantidadFaltas ?? 0;      
+            plan.CantidadFaltas = planDTO.CantidadFaltas ?? 0;
+            plan.CantidadFijas = planDTO.CantidadFijas ?? 0;
 
             var actividades = new List<Actividad>();
 
@@ -106,7 +107,8 @@ namespace Services
             planToUpdate.DiasVisualizacionAgenda = planDTO.DiasVisualizacionAgenda ?? 0;
             planToUpdate.ReglaAgenda = planDTO.ReglaAgenda;
             planToUpdate.CantidadCancelaciones = planDTO.CantidadCancelaciones ?? 0;
-            planToUpdate.CantidadFaltas = planDTO.CantidadFaltas ?? 0;         
+            planToUpdate.CantidadFaltas = planDTO.CantidadFaltas ?? 0;
+            planToUpdate.CantidadFijas = planDTO.CantidadFijas ?? 0;
 
             var actividades = new List<Actividad>();
 

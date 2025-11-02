@@ -233,8 +233,11 @@ namespace Services
             }
             else if (alumno.Plan.Tipo == Plan.tipo.PASE_LIBRE)
             {
-                if(alumno.Plan.CantidadFijas > 0 && alumno.ClasesFijas.Count() < alumno.Plan.CantidadFijas)
+                var cantFijas = alumno.ClasesFijas?.Count ?? 0;
+                if (alumno.Plan.Tipo == Plan.tipo.PASE_LIBRE && alumno.Plan.CantidadFijas > 0 && cantFijas < alumno.Plan.CantidadFijas)
+                {
                     puede = true;
+                }
             }
             else if (alumno.Plan.Tipo == Plan.tipo.TU_PASE)
             {

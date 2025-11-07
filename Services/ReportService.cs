@@ -8,6 +8,7 @@ using ServicesInterface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 
 namespace Services
@@ -56,6 +57,48 @@ namespace Services
                         ActividadNombre = clase.Actividad.Nombre,
                         LocalNombre = clase.Local.Nombre,
                         Estado= claseAlumno.Estado,
+                        HorarioInicio = clase.HorarioInicio,
+                        HorarioFin = clase.HorarioFin
+                    };
+
+                    result.Add(reserva);
+                }
+            }
+            return result;
+        }
+
+        public List<ReservaPorPlanDTO> GetReservasPorTipoPLan(int tipo, DateTime desde, DateTime hasta)
+        {
+
+            var result = new List<ReservaPorPlanDTO>();
+
+            // Obtener todas las clases que cumplan con los criterios
+            var reservas = this.claseRepository.IncludeAllAnidadoFull("Local", "Actividad", "ClasesAlumno.Alumno.Plan")
+                .Where(c => c.HorarioInicio.Date >= desde &&
+                            c.HorarioFin.Date <= hasta &&
+                            c.ClasesAlumno.Any(ca => ca.Alumno.Plan != null && (int)ca.Alumno.Plan.Tipo == tipo))
+                .ToList();
+            // Iterar sobre las clases y extraer las reservas de los alumnos con el plan especificado
+            foreach (var clase in reservas)
+            {
+                var alumnosFiltrados = clase.ClasesAlumno
+                .Where(ca => (int)ca.Alumno.Plan.Tipo== tipo &&
+                    ((ca.Estado == AlumnoClase.estado.CONFIRMADA) ||
+                    (ca.Estado == AlumnoClase.estado.CANCELADA &&
+                    ca.FechaCancelacion >= clase.HorarioInicio.AddHours(-2)) || ca.Estado == AlumnoClase.estado.CANCELADAFALTA
+                    || ca.Estado == AlumnoClase.estado.FALTA))
+                .ToList();
+                foreach (var claseAlumno in alumnosFiltrados)
+                {
+                    var reserva = new ReservaPorPlanDTO
+                    {
+                        AlumnoId = claseAlumno.Alumno.Id,
+                        AlumnoNombre = claseAlumno.Alumno.Name,
+                        AlumnoApellido = claseAlumno.Alumno.Apellido,
+                        ClaseId = clase.Id,
+                        ActividadNombre = clase.Actividad.Nombre,
+                        LocalNombre = clase.Local.Nombre,
+                        Estado = claseAlumno.Estado,
                         HorarioInicio = clase.HorarioInicio,
                         HorarioFin = clase.HorarioFin
                     };

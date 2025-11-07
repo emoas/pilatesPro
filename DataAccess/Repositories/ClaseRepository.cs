@@ -95,6 +95,21 @@ namespace DataAccess.Repositories
             return queryable;
         }
 
+        public IQueryable<Clase> IncludeAllAnidadoFull(params string[] list)
+        {
+            IQueryable<Clase> queryable = Set.OfType<Clase>();
+
+            if (list == null || list.Length == 0) return queryable;
+
+            foreach (var include in list.Distinct())
+            {
+                // EF Core admite rutas con puntos, incluso si hay colecciones en el medio.
+                queryable = queryable.Include(include);
+            }
+
+            return queryable;
+        }
+
         public IQueryable<Clase> List()
         {
             return Set;

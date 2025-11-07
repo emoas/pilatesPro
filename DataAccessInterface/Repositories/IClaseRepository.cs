@@ -20,5 +20,6 @@ namespace DataAccessInterface.Repositories
 
         IQueryable<Clase> IncludeAll(params string[] list);
         IQueryable<Clase> IncludeAllAnidado(params string[] list);
+        IQueryable<Clase> IncludeAllAnidadoFull(params string[] list);
     }
 }
